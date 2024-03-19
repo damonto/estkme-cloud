@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/damonto/estkme-rlpa-server/internal/config"
+	"github.com/damonto/estkme-rlpa-server/internal/pkg/config"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/lpac"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/rlpa"
 )

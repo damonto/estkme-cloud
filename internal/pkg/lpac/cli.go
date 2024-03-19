@@ -111,7 +111,6 @@ func (c *cli) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
 			},
 		})
 	}
-
 	return nil
 }
 
