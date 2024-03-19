@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/damonto/estkme-rlpa-server/internal/config"
+	"github.com/damonto/estkme-rlpa-server/internal/pkg/config"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/transmitter"
 )
 
