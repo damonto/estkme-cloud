@@ -1,10 +1,9 @@
 package lpac
 
 type Info struct {
-	EID                       string                   `json:"eidValue"`
-	EuiccConfiguredAddresses  EuiccConfiguredAddresses `json:"euiccConfiguredAddresses"`
-	EUICCInfo2                EuiccInfo2               `json:"euiccInfo2"`
-	EuiccCiPKIdListForSigning []string                 `json:"euiccCiPKIdListForSigning"`
+	EID                      string                   `json:"eidValue"`
+	EuiccConfiguredAddresses EuiccConfiguredAddresses `json:"euiccConfiguredAddresses"`
+	EUICCInfo2               EuiccInfo2               `json:"euiccInfo2"`
 }
 
 type EuiccConfiguredAddresses struct {
@@ -14,7 +13,7 @@ type EuiccConfiguredAddresses struct {
 
 type EuiccInfo2 struct {
 	SasAccreditationNumber string          `json:"sasAccreditationNumber"`
-	ExtCardResource        ExtCardResource `json:"cardResources"`
+	ExtCardResource        ExtCardResource `json:"extCardResource"`
 	PkiForSigning          []string        `json:"euiccCiPKIdListForSigning"`
 }
 

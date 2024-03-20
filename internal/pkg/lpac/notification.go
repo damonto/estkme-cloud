@@ -19,16 +19,16 @@ func (c *cli) NotificationList() (Notifications, error) {
 	return notifications, nil
 }
 
-func (c *cli) NotificationProcess(seqNumber int, remove bool) error {
-	arguments := []string{"notification", "process", "-s", strconv.Itoa(seqNumber)}
+func (c *cli) NotificationProcess(seqNumber int, remove bool, progress Progress) error {
+	arguments := []string{"notification", "process", strconv.Itoa(seqNumber)}
 	if remove {
 		arguments = append(arguments, "-r")
 	}
-	return c.Run(arguments, nil, nil)
+	return c.Run(arguments, nil, progress)
 }
 
 func (c *cli) NotificationDelete(seqNumber int) error {
-	return c.Run([]string{"notification", "delete", "-s", strconv.Itoa(seqNumber)}, nil, nil)
+	return c.Run([]string{"notification", "delete", strconv.Itoa(seqNumber)}, nil, nil)
 }
 
 func (c *cli) NotificationPurge() error {

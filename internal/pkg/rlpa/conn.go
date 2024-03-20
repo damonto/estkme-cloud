@@ -34,8 +34,13 @@ func (c *Connection) registerHandlers() {
 			return conn.Send(TagMessageBox, []byte("We strongly recommend you use the management mode to process notifications. \n You are now disconnected. \n Goodbye!"))
 		},
 		TagDownloadProfile: func(conn *Connection, data []byte) error {
+			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-			return Download(conn, data)
+			if err := Download(conn, data); err != nil {
+				slog.Error("error downloading profile", "error", err)
+				return conn.Send(TagMessageBox, []byte("download failed \n"+err.Error()))
+			}
+			return conn.Send(TagMessageBox, []byte("download successful"))
 		},
 	}
 }

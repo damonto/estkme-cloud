@@ -2,17 +2,18 @@ package rlpa
 
 import (
 	"bytes"
-	"fmt"
+
+	"github.com/damonto/estkme-rlpa-server/internal/pkg/lpac"
 )
 
 func Download(conn *Connection, data []byte) error {
 	parts := bytes.Split(data, []byte{0x02})
-	if len(parts) < 3 {
+	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
 		return conn.Send(TagMessageBox, []byte("Invalid activation code"))
 	}
 
 	var matchingId string
-	if len(parts) > 3 {
+	if len(parts) > 2 {
 		matchingId = string(parts[2])
 	}
 
@@ -28,6 +29,11 @@ func Download(conn *Connection, data []byte) error {
 		}
 	}
 
-	fmt.Println(parts[1], matchingId, confirmationCode)
-	return nil
+	return lpac.NewCLI(conn.APDU).DownloadProfile(lpac.ActivationCode{
+		SMDP:             string(parts[1]),
+		MatchingId:       matchingId,
+		ConfirmationCode: confirmationCode,
+	}, func(current string) error {
+		return conn.Send(TagMessageBox, []byte(current))
+	})
 }

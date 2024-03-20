@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -13,15 +14,11 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/transmitter"
 )
 
-type CLI interface {
-	Run(arguments []string, dst any, progress Progress) error
-}
-
 type cli struct {
 	APDU transmitter.APDU
 }
 
-func NewCLI(APDU transmitter.APDU) CLI {
+func NewCLI(APDU transmitter.APDU) *cli {
 	return &cli{APDU: APDU}
 }
 
@@ -51,6 +48,7 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		output := scanner.Text()
+		slog.Info("command output", "output", output)
 		if err := c.handleOutput(output, stdin, dst, progress); err != nil {
 			return err
 		}
@@ -86,7 +84,10 @@ func (c *cli) handleLPAResponse(payload json.RawMessage, dst any) error {
 	if lpaPayload.Code != 0 {
 		var errorMessage string
 		if err := json.Unmarshal(lpaPayload.Data, &errorMessage); err != nil {
-			return errors.New("unknown error")
+			return errors.New(lpaPayload.Message)
+		}
+		if errorMessage == "" {
+			return errors.New(lpaPayload.Message)
 		}
 		return errors.New(errorMessage)
 	}

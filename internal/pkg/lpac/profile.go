@@ -6,6 +6,7 @@ type ActivationCode struct {
 	SMDP             string
 	MatchingId       string
 	ConfirmationCode string
+	IMEI             string
 }
 
 type Profile struct {
@@ -44,7 +45,7 @@ func (c *cli) ProfileInfo(ICCID string) (Profile, error) {
 	return Profile{}, nil
 }
 
-func (c *cli) DownloadProfile(activationCode ActivationCode) error {
+func (c *cli) DownloadProfile(activationCode ActivationCode, progress Progress) error {
 	arguments := []string{"profile", "download"}
 	if activationCode.SMDP != "" {
 		arguments = append(arguments, "-s", activationCode.SMDP)
@@ -55,9 +56,12 @@ func (c *cli) DownloadProfile(activationCode ActivationCode) error {
 	if activationCode.ConfirmationCode != "" {
 		arguments = append(arguments, "-c", activationCode.ConfirmationCode)
 	}
+	if activationCode.IMEI != "" {
+		arguments = append(arguments, "-i", activationCode.IMEI)
+	}
 
 	return c.sendNotificationAfterDownload(func() error {
-		return c.Run(arguments, nil, nil)
+		return c.Run(arguments, nil, progress)
 	})
 }
 
@@ -75,7 +79,7 @@ func (c *cli) sendNotificationAfterDownload(action func() error) error {
 	}
 
 	if err := action(); err != nil {
-		return nil
+		return err
 	}
 
 	notifications, err = c.NotificationList()
@@ -92,7 +96,7 @@ func (c *cli) sendNotificationAfterDownload(action func() error) error {
 		}
 	}
 	if installNotificationSeqNumber != math.MaxInt {
-		return c.NotificationProcess(installNotificationSeqNumber, true)
+		return c.NotificationProcess(installNotificationSeqNumber, true, nil)
 	}
 	return nil
 }
@@ -115,5 +119,5 @@ func (c *cli) DeleteProfile(ICCID string) error {
 			}
 		}
 	}
-	return c.NotificationProcess(deletionNotificationSeqNumber, false)
+	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
