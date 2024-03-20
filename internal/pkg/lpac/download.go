@@ -35,7 +35,7 @@ var packageNames = map[string]string{
 
 func Download(dataDir, version string) error {
 	if _, ok := packageNames[runtime.GOOS+":"+runtime.GOARCH]; !ok {
-		return errors.New("unsupported platform")
+		return errors.ErrUnsupported
 	}
 
 	if !shouldDownload(dataDir, version) {

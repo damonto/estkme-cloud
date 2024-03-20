@@ -20,13 +20,14 @@ func Download(conn *Connection, data []byte) error {
 	if len(parts) == 5 {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
-			parts[4] = []byte("Confirmation Code")
+			parts[4] = []byte("ConfirmationCode")
 			return conn.Send(TagMessageBox, []byte(
 				"Need a confirmation code. \n Please enter the confirmation code in the following format. \n"+
 					string(bytes.Join(parts, []byte{0x02})),
 			))
 		}
 	}
+
 	fmt.Println(parts[1], matchingId, confirmationCode)
 	return nil
 }

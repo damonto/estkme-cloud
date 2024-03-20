@@ -3,6 +3,7 @@ package lpac
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"io"
 	"os/exec"
 	"path/filepath"
@@ -36,6 +37,7 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 		cmd.Env = append(cmd.Env, "LIBCURL"+filepath.Join(config.C.DataDir, "libcurl.dll"))
 	}
 
+	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
 	stdout, _ := cmd.StdoutPipe()
 	defer stdout.Close()
 	stdin, _ := cmd.StdinPipe()
@@ -66,9 +68,7 @@ func (c *cli) handleOutput(output string, input io.WriteCloser, dst any, progres
 	case CommandStdioAPDU:
 		return c.handleAPDU(commandOutput.Payload, input)
 	case CommandStdioLPA:
-		if dst != nil {
-			return json.Unmarshal(commandOutput.Payload, dst)
-		}
+		return c.handleLPAResponse(commandOutput.Payload, dst)
 	case CommandStdioProgress:
 		if progress != nil {
 			return c.handleProgress(commandOutput.Payload, progress)
@@ -77,10 +77,32 @@ func (c *cli) handleOutput(output string, input io.WriteCloser, dst any, progres
 	return nil
 }
 
+func (c *cli) handleLPAResponse(payload json.RawMessage, dst any) error {
+	var lpaPayload LPAPyaload
+	if err := json.Unmarshal(payload, &lpaPayload); err != nil {
+		return err
+	}
+
+	if lpaPayload.Code != 0 {
+		var errorMessage string
+		if err := json.Unmarshal(lpaPayload.Data, &errorMessage); err != nil {
+			return errors.New("unknown error")
+		}
+		return errors.New(errorMessage)
+	}
+	if dst != nil {
+		return json.Unmarshal(lpaPayload.Data, dst)
+	}
+	return nil
+}
+
 func (c *cli) handleProgress(payload json.RawMessage, progress Progress) error {
 	var progressPayload ProgressPayload
 	if err := json.Unmarshal(payload, &progressPayload); err != nil {
 		return err
+	}
+	if humanReadableMessage, ok := ProgressMessages[progressPayload.Message]; ok {
+		return progress(humanReadableMessage)
 	}
 	return progress(progressPayload.Message)
 }
@@ -92,13 +114,6 @@ func (c *cli) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
 	}
 
 	switch command.Func {
-	case CommandAPDUFuncConnect, CommandAPDUFuncDisconnect, CommandAPDUOpenLogicalChannel, CommandAPDUCloseLogicalChannel:
-		return json.NewEncoder(input).Encode(CommandAPDUInput{
-			Type: CommandStdioAPDU,
-			Payload: CommandAPDUInputPayload{
-				ECode: 0,
-			},
-		})
 	case CommandAPDUFuncTransmit:
 		received, err := c.APDU.Transmit(command.Param)
 		if err != nil {
@@ -110,8 +125,14 @@ func (c *cli) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
 				Data: received,
 			},
 		})
+	default:
+		return json.NewEncoder(input).Encode(CommandAPDUInput{
+			Type: CommandStdioAPDU,
+			Payload: CommandAPDUInputPayload{
+				ECode: 0,
+			},
+		})
 	}
-	return nil
 }
 
 func (c *cli) binName() string {

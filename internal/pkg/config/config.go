@@ -1,7 +1,7 @@
 package config
 
 import (
-	"errors"
+	"net"
 )
 
 type Config struct {
@@ -14,8 +14,9 @@ type Config struct {
 var C = &Config{}
 
 func (c *Config) IsValid() error {
-	if c.BotToken == "" {
-		return errors.New("bot token is required")
+	if _, err := net.ResolveTCPAddr("tcp", c.ListenAddress); err != nil {
+		return err
 	}
+
 	return nil
 }
