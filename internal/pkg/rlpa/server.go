@@ -66,6 +66,12 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 			slog.Error("error reading from connection", "error", err)
 			continue
 		}
+
+		if tag == TagClose {
+			slog.Info("client closed connection", "id", connectionId)
+			return
+		}
+
 		slog.Info("received data from", "id", connectionId, "tag", tag, "data", data)
 		go conn.Dispatch(tag, data)
 	}
