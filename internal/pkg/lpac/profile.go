@@ -1,6 +1,9 @@
 package lpac
 
-import "math"
+import (
+	"errors"
+	"math"
+)
 
 type ActivationCode struct {
 	SMDP             string
@@ -88,15 +91,15 @@ func (c *cli) sendNotificationAfterDownload(action func() error) error {
 	}
 
 	// Find the notification with the highest sequence number
-	installNotificationSeqNumber := math.MaxInt
+	installationNotificationSeqNumber := math.MaxInt
 	for _, notification := range notifications {
-		if notification.SeqNumber > lastSeqNumber && notification.SeqNumber < installNotificationSeqNumber {
-			installNotificationSeqNumber = notification.SeqNumber
+		if notification.SeqNumber > lastSeqNumber && notification.SeqNumber < installationNotificationSeqNumber {
+			installationNotificationSeqNumber = notification.SeqNumber
 			break
 		}
 	}
-	if installNotificationSeqNumber != math.MaxInt {
-		return c.NotificationProcess(installNotificationSeqNumber, true, nil)
+	if installationNotificationSeqNumber != math.MaxInt {
+		return c.NotificationProcess(installationNotificationSeqNumber, false, nil)
 	}
 	return nil
 }
@@ -111,13 +114,16 @@ func (c *cli) DeleteProfile(ICCID string) error {
 		return err
 	}
 
-	deletionNotificationSeqNumber := 0
+	deletionNotificationSeqNumber := math.MaxInt
 	for _, notification := range notifications {
 		if notification.ICCID == ICCID && notification.ProfileManagementOperation == "delete" {
 			if notification.SeqNumber > deletionNotificationSeqNumber {
 				deletionNotificationSeqNumber = notification.SeqNumber
 			}
 		}
+	}
+	if deletionNotificationSeqNumber == math.MaxInt {
+		return errors.New("deletion notification not found")
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
