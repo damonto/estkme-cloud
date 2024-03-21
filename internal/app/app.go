@@ -8,8 +8,9 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/rlpa"
 	"github.com/damonto/estkme-rlpa-server/web"
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/csrf"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/filesystem"
+	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 )
@@ -37,9 +38,13 @@ func (a *app) Run(address string) error {
 }
 
 func (a *app) registerMiddlewares() {
-	a.fiber.Use(csrf.New())
+	a.fiber.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
 	a.fiber.Use(requestid.New())
 	a.fiber.Use(recover.New())
+	a.fiber.Use(logger.New())
 }
 
 func (a *app) registerStatic() {
@@ -52,6 +57,10 @@ func (a *app) registerStatic() {
 
 func (a *app) registerRoutes() {
 	api := a.fiber.Group("/api")
+	{
+		h := handler.NewConnectHandler(a.connManager)
+		api.Post("/connect", h.Connect)
+	}
 	r := api.Use(middleware.WithRLPAConn(a.connManager))
 	{
 		h := handler.NewChipHandler()

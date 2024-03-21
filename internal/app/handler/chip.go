@@ -12,7 +12,7 @@ func NewChipHandler() *ChipHandler {
 
 type ChipInfo struct {
 	EID       string  `json:"eid"`
-	FreeSpace float32 `json:"free_space"`
+	FreeSpace float32 `json:"freeSpace"`
 }
 
 func (c *ChipHandler) Info(ctx fiber.Ctx) error {
