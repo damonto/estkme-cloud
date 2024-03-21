@@ -10,6 +10,11 @@ func NewChipHandler() *ChipHandler {
 	return &ChipHandler{}
 }
 
+type ChipInfo struct {
+	EID       string  `json:"eid"`
+	FreeSpace float32 `json:"free_space"`
+}
+
 func (c *ChipHandler) Info(ctx fiber.Ctx) error {
 	chip, err := c.LpacCmder(ctx).Info()
 	if err != nil {
@@ -17,7 +22,11 @@ func (c *ChipHandler) Info(ctx fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
+
 	return ctx.JSON(fiber.Map{
-		"data": chip,
+		"data": ChipInfo{
+			EID:       chip.EID,
+			FreeSpace: float32(chip.EUICCInfo2.ExtCardResource.FreeNonVolatileMemory) / 1024,
+		},
 	})
 }

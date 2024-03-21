@@ -28,7 +28,7 @@ func NewConnection(id string, conn *net.TCPConn) *Connection {
 func (c *Connection) registerHandlers() {
 	c.handlers = map[byte]Handler{
 		TagManagement: func(conn *Connection, data []byte) error {
-			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n This is your PIN code:\n"+conn.Id))
+			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN code\n"+conn.Id))
 		},
 		TagProcessNotification: func(conn *Connection, data []byte) error {
 			defer conn.Close()

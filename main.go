@@ -17,7 +17,7 @@ func init() {
 	cwd, _ := os.Getwd()
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "rLPA server listen address")
 	flag.StringVar(&config.C.AppListenAddress, "app-listen-address", ":9527", "Web application listen address")
-	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-alpha.6", "lpac version")
+	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-beta", "lpac version")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
 	flag.Parse()
 }

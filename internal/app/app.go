@@ -1,11 +1,15 @@
 package app
 
 import (
+	"io/fs"
+
 	"github.com/damonto/estkme-rlpa-server/internal/app/handler"
 	"github.com/damonto/estkme-rlpa-server/internal/app/middleware"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/rlpa"
+	"github.com/damonto/estkme-rlpa-server/web"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/csrf"
+	"github.com/gofiber/fiber/v3/middleware/filesystem"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 )
@@ -26,19 +30,32 @@ func New(connManager rlpa.Manager) Application {
 
 func (a *app) Run(address string) error {
 	a.fiber = fiber.New()
-	a.fiber.Use(csrf.New())
-	a.fiber.Use(requestid.New())
-	a.fiber.Use(recover.New())
-	a.fiber.Use(middleware.WithLpac(a.connManager))
+	a.registerMiddlewares()
+	a.registerStatic()
 	a.registerRoutes()
 	return a.fiber.Listen(address)
 }
 
+func (a *app) registerMiddlewares() {
+	a.fiber.Use(csrf.New())
+	a.fiber.Use(requestid.New())
+	a.fiber.Use(recover.New())
+}
+
+func (a *app) registerStatic() {
+	dist, _ := fs.Sub(fs.FS(web.Root), "dist")
+	a.fiber.Use("/", filesystem.New(filesystem.Config{
+		Root:   dist,
+		Browse: true,
+	}))
+}
+
 func (a *app) registerRoutes() {
 	api := a.fiber.Group("/api")
+	r := api.Use(middleware.WithRLPAConn(a.connManager))
 	{
 		h := handler.NewChipHandler()
-		api.Get("/chip", h.Info)
+		r.Get("/chip", h.Info)
 	}
 }
 
