@@ -8,7 +8,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/sqids/sqids-go"
 )
 
 type Server interface {
@@ -51,12 +51,12 @@ func (s *server) Listen(address string) error {
 }
 
 func (s *server) handleConn(tcpConn *net.TCPConn) {
-	connectionId := uuid.New().String()
-	conn := NewConnection(connectionId, tcpConn)
-	s.manager.Add(connectionId, conn)
-	slog.Info("new connection from", "id", connectionId)
+	id := s.id(tcpConn)
+	conn := NewConnection(id, tcpConn)
+	s.manager.Add(id, conn)
+	slog.Info("new connection from", "id", id)
 	defer conn.Close()
-	defer s.manager.Remove(connectionId)
+	defer s.manager.Remove(id)
 
 	for {
 		tag, data, err := conn.Read()
@@ -69,22 +69,31 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 		}
 
 		if tag == TagClose {
-			slog.Info("client closed connection", "id", connectionId)
+			slog.Info("client closed connection", "id", id)
 			return
 		}
 		if tag == TagAPDU {
-			slog.Info("received data from", "id", connectionId, "tag", tag, "data", hex.EncodeToString(data))
+			slog.Info("received data from", "id", id, "tag", tag, "data", hex.EncodeToString(data))
 		} else {
-			slog.Info("received data from", "id", connectionId, "tag", tag, "data", string(data))
+			slog.Info("received data from", "id", id, "tag", tag, "data", string(data))
 		}
 		go conn.Dispatch(tag, data)
 	}
 }
 
+func (s *server) id(tcpConn *net.TCPConn) string {
+	sqid, _ := sqids.New(sqids.Options{
+		MinLength: 8,
+	})
+	netAddr, _ := net.ResolveTCPAddr("tcp", tcpConn.RemoteAddr().String())
+	id, _ := sqid.Encode([]uint64{uint64(netAddr.Port)})
+	return id
+}
+
 func (s *server) Shutdown() error {
 	for _, conn := range s.manager.GetAll() {
 		conn.Close()
-		s.manager.Remove(conn.ConnectionId)
+		s.manager.Remove(conn.Id)
 	}
 	return s.listener.Close()
 }

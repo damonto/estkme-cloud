@@ -12,10 +12,10 @@ type Token struct {
 
 func WithLpac(manager rlpa.Manager) fiber.Handler {
 	return func(c fiber.Ctx) error {
-		token := c.Query("token", c.Get("Authorization"))
+		token := c.Query("pin_code", c.Get("Authorization"))
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "unauthorized, missing token",
+				"error": "unauthorized, missing pin code",
 			})
 		}
 

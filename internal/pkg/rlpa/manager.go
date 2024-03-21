@@ -6,9 +6,9 @@ import (
 )
 
 type Manager interface {
-	Add(connectionId string, connection *Connection)
-	Remove(connectionId string)
-	Get(connectionId string) (*Connection, error)
+	Add(id string, connection *Connection)
+	Remove(id string)
+	Get(id string) (*Connection, error)
 	GetAll() []*Connection
 	Len() int
 }
@@ -25,16 +25,16 @@ func NewManager() Manager {
 	return &manager{}
 }
 
-func (m *manager) Add(connectionId string, connection *Connection) {
-	m.connections.Store(connectionId, connection)
+func (m *manager) Add(id string, connection *Connection) {
+	m.connections.Store(id, connection)
 }
 
-func (m *manager) Remove(connectionId string) {
-	m.connections.Delete(connectionId)
+func (m *manager) Remove(id string) {
+	m.connections.Delete(id)
 }
 
-func (m *manager) Get(connectionId string) (*Connection, error) {
-	conn, ok := m.connections.Load(connectionId)
+func (m *manager) Get(id string) (*Connection, error) {
+	conn, ok := m.connections.Load(id)
 	if !ok {
 		return nil, errors.New(ErrConnectionNotFound)
 	}
