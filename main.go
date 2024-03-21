@@ -15,7 +15,7 @@ import (
 func init() {
 	cwd, _ := os.Getwd()
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "address to listen on")
-	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-alpha.5", "lpac version")
+	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-alpha.6", "lpac version")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
 	flag.StringVar(&config.C.BotToken, "bot-token", "", "bot token")
 	flag.Parse()

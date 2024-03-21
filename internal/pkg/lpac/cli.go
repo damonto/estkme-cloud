@@ -27,11 +27,9 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 	defer c.APDU.Unlock()
 	cmd := exec.Command(c.binName(), arguments...)
 	cmd.Dir = config.C.DataDir
-	// TODO: Will be deprecated in future versions
-	cmd.Env = append(cmd.Env, "APDU_INTERFACE="+filepath.Join(config.C.DataDir, "libapduinterface_stdio"+c.libExtension()))
 	// Windows requires libcurl.dll to be in the same directory as the binary
 	if runtime.GOOS == "windows" {
-		cmd.Env = append(cmd.Env, "LIBCURL"+filepath.Join(config.C.DataDir, "libcurl.dll"))
+		cmd.Env = append(cmd.Env, "LIBCURL="+filepath.Join(config.C.DataDir, "libcurl.dll"))
 	}
 
 	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
@@ -54,6 +52,17 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 		}
 	}
 	return cmd.Wait()
+}
+
+func (c *cli) binName() string {
+	var binName string
+	switch runtime.GOOS {
+	case "windows":
+		binName = "lpac.exe"
+	default:
+		binName = "lpac"
+	}
+	return filepath.Join(config.C.DataDir, binName)
 }
 
 func (c *cli) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
@@ -133,27 +142,5 @@ func (c *cli) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
 				ECode: 0,
 			},
 		})
-	}
-}
-
-func (c *cli) binName() string {
-	var binName string
-	switch runtime.GOOS {
-	case "windows":
-		binName = "lpac.exe"
-	default:
-		binName = "lpac"
-	}
-	return filepath.Join(config.C.DataDir, binName)
-}
-
-func (c *cli) libExtension() string {
-	switch runtime.GOOS {
-	case "windows":
-		return ".dll"
-	case "darwin":
-		return ".dylib"
-	default:
-		return ".so"
 	}
 }
