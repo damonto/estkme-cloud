@@ -2,6 +2,7 @@ package rlpa
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"log/slog"
 	"net"
 	"sync"
@@ -36,7 +37,7 @@ func (c *Connection) registerHandlers() {
 		TagDownloadProfile: func(conn *Connection, data []byte) error {
 			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-			if err := Download(conn, data); err != nil {
+			if err := downloadProfile(conn, data); err != nil {
 				slog.Error("error downloading profile", "error", err)
 				return conn.Send(TagMessageBox, []byte("download failed \n"+err.Error()))
 			}
@@ -60,7 +61,11 @@ func (c *Connection) Send(tag byte, data []byte) error {
 	c.mutx.Lock()
 	defer c.mutx.Unlock()
 	packet := c.pack(tag, data)
-	slog.Info("sending data", "tag", tag, "packet", packet)
+	if tag == TagAPDU {
+		slog.Info("sending data", "tag", tag, "packet", hex.EncodeToString(packet))
+	} else {
+		slog.Info("sending data", "tag", tag, "data", string(data))
+	}
 	_, err := c.Conn.Write(packet)
 	return err
 }

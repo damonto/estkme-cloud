@@ -26,7 +26,7 @@ type Profile struct {
 
 type Profiles = []Profile
 
-func (c *cli) ProfileList() (Profiles, error) {
+func (c *Cmder) ProfileList() (Profiles, error) {
 	var profiles Profiles
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return profiles, err
@@ -34,7 +34,7 @@ func (c *cli) ProfileList() (Profiles, error) {
 	return profiles, nil
 }
 
-func (c *cli) ProfileInfo(ICCID string) (Profile, error) {
+func (c *Cmder) ProfileInfo(ICCID string) (Profile, error) {
 	var profiles Profiles
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return Profile{}, err
@@ -48,7 +48,7 @@ func (c *cli) ProfileInfo(ICCID string) (Profile, error) {
 	return Profile{}, nil
 }
 
-func (c *cli) DownloadProfile(activationCode ActivationCode, progress Progress) error {
+func (c *Cmder) DownloadProfile(activationCode ActivationCode, progress Progress) error {
 	arguments := []string{"profile", "download"}
 	if activationCode.SMDP != "" {
 		arguments = append(arguments, "-s", activationCode.SMDP)
@@ -68,7 +68,7 @@ func (c *cli) DownloadProfile(activationCode ActivationCode, progress Progress) 
 	})
 }
 
-func (c *cli) sendNotificationAfterDownload(action func() error) error {
+func (c *Cmder) sendNotificationAfterDownload(action func() error) error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func (c *cli) sendNotificationAfterDownload(action func() error) error {
 	return nil
 }
 
-func (c *cli) DeleteProfile(ICCID string) error {
+func (c *Cmder) DeleteProfile(ICCID string) error {
 	if err := c.Run([]string{"profile", "delete", ICCID}, nil, nil); err != nil {
 		return err
 	}
@@ -126,4 +126,8 @@ func (c *cli) DeleteProfile(ICCID string) error {
 		return errors.New("deletion notification not found")
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
+}
+
+func (c *Cmder) SetNickname(ICCID string, nickname string) error {
+	return c.Run([]string{"profile", "nickname", ICCID, nickname}, nil, nil)
 }

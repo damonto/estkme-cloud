@@ -11,7 +11,7 @@ type Notification struct {
 
 type Notifications = []Notification
 
-func (c *cli) NotificationList() (Notifications, error) {
+func (c *Cmder) NotificationList() (Notifications, error) {
 	var notifications Notifications
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {
 		return notifications, err
@@ -19,7 +19,7 @@ func (c *cli) NotificationList() (Notifications, error) {
 	return notifications, nil
 }
 
-func (c *cli) NotificationProcess(seqNumber int, remove bool, progress Progress) error {
+func (c *Cmder) NotificationProcess(seqNumber int, remove bool, progress Progress) error {
 	arguments := []string{"notification", "process", strconv.Itoa(seqNumber)}
 	if remove {
 		arguments = append(arguments, "-r")
@@ -27,11 +27,11 @@ func (c *cli) NotificationProcess(seqNumber int, remove bool, progress Progress)
 	return c.Run(arguments, nil, progress)
 }
 
-func (c *cli) NotificationDelete(seqNumber int) error {
+func (c *Cmder) NotificationDelete(seqNumber int) error {
 	return c.Run([]string{"notification", "delete", strconv.Itoa(seqNumber)}, nil, nil)
 }
 
-func (c *cli) NotificationPurge() error {
+func (c *Cmder) NotificationPurge() error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err

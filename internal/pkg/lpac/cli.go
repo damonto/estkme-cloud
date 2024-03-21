@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log/slog"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -14,19 +13,20 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/transmitter"
 )
 
-type cli struct {
+type Cmder struct {
 	APDU transmitter.APDU
 }
 
-func NewCLI(APDU transmitter.APDU) *cli {
-	return &cli{APDU: APDU}
+func NewCmder(APDU transmitter.APDU) *Cmder {
+	return &Cmder{APDU: APDU}
 }
 
-func (c *cli) Run(arguments []string, dst any, progress Progress) error {
+func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	c.APDU.Lock()
 	defer c.APDU.Unlock()
 	cmd := exec.Command(c.binName(), arguments...)
 	cmd.Dir = config.C.DataDir
+	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
 	// Windows requires libcurl.dll to be in the same directory as the binary
 	if runtime.GOOS == "windows" {
 		cmd.Env = append(cmd.Env, "LIBCURL="+filepath.Join(config.C.DataDir, "libcurl.dll"))
@@ -46,7 +46,6 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		output := scanner.Text()
-		slog.Info("command output", "output", output)
 		if err := c.handleOutput(output, stdin, dst, progress); err != nil {
 			return err
 		}
@@ -54,7 +53,7 @@ func (c *cli) Run(arguments []string, dst any, progress Progress) error {
 	return cmd.Wait()
 }
 
-func (c *cli) binName() string {
+func (c *Cmder) binName() string {
 	var binName string
 	switch runtime.GOOS {
 	case "windows":
@@ -65,7 +64,7 @@ func (c *cli) binName() string {
 	return filepath.Join(config.C.DataDir, binName)
 }
 
-func (c *cli) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
+func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
 	var commandOutput CommandOutput
 	if err := json.Unmarshal([]byte(output), &commandOutput); err != nil {
 		return err
@@ -84,7 +83,7 @@ func (c *cli) handleOutput(output string, input io.WriteCloser, dst any, progres
 	return nil
 }
 
-func (c *cli) handleLPAResponse(payload json.RawMessage, dst any) error {
+func (c *Cmder) handleLPAResponse(payload json.RawMessage, dst any) error {
 	var lpaPayload LPAPyaload
 	if err := json.Unmarshal(payload, &lpaPayload); err != nil {
 		return err
@@ -106,7 +105,7 @@ func (c *cli) handleLPAResponse(payload json.RawMessage, dst any) error {
 	return nil
 }
 
-func (c *cli) handleProgress(payload json.RawMessage, progress Progress) error {
+func (c *Cmder) handleProgress(payload json.RawMessage, progress Progress) error {
 	var progressPayload ProgressPayload
 	if err := json.Unmarshal(payload, &progressPayload); err != nil {
 		return err
@@ -117,7 +116,7 @@ func (c *cli) handleProgress(payload json.RawMessage, progress Progress) error {
 	return progress(progressPayload.Message)
 }
 
-func (c *cli) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
+func (c *Cmder) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
 	var command CommandAPDUPayload
 	if err := json.Unmarshal(payload, &command); err != nil {
 		return err

@@ -1,6 +1,7 @@
 package rlpa
 
 import (
+	"encoding/hex"
 	"errors"
 	"io"
 	"log/slog"
@@ -31,7 +32,7 @@ func (s *server) Listen(address string) error {
 	if err != nil {
 		return err
 	}
-	slog.Info("listening on", "address", address)
+	slog.Info("rLPA server is running on", "address", address)
 
 	for {
 		conn, err := s.listener.AcceptTCP()
@@ -71,8 +72,11 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 			slog.Info("client closed connection", "id", connectionId)
 			return
 		}
-
-		slog.Info("received data from", "id", connectionId, "tag", tag, "data", data)
+		if tag == TagAPDU {
+			slog.Info("received data from", "id", connectionId, "tag", tag, "data", hex.EncodeToString(data))
+		} else {
+			slog.Info("received data from", "id", connectionId, "tag", tag, "data", string(data))
+		}
 		go conn.Dispatch(tag, data)
 	}
 }

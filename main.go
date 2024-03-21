@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
+	"github.com/damonto/estkme-rlpa-server/internal/app"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/config"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/lpac"
 	"github.com/damonto/estkme-rlpa-server/internal/pkg/rlpa"
@@ -14,10 +15,10 @@ import (
 
 func init() {
 	cwd, _ := os.Getwd()
-	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "address to listen on")
+	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "rLPA server listen address")
+	flag.StringVar(&config.C.AppListenAddress, "app-listen-address", ":9527", "Web application listen address")
 	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-alpha.6", "lpac version")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
-	flag.StringVar(&config.C.BotToken, "bot-token", "", "bot token")
 	flag.Parse()
 }
 
@@ -41,9 +42,18 @@ func main() {
 		}
 	}()
 
+	app := app.New(manager)
+	go func() {
+		if err := app.Run(config.C.AppListenAddress); err != nil {
+			slog.Error("failed to run app", "error", err)
+			os.Exit(1)
+		}
+	}()
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	slog.Info("shutting down server")
+	app.Shutdown()
 	server.Shutdown()
 }
