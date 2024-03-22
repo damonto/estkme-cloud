@@ -33,7 +33,7 @@ func (c *Cmder) NotificationProcess(seqNumber int, remove bool, progress Progres
 }
 
 func (c *Cmder) NotificationDelete(seqNumber int) error {
-	return c.Run([]string{"notification", "delete", strconv.Itoa(seqNumber)}, nil, nil)
+	return c.Run([]string{"notification", "remove", strconv.Itoa(seqNumber)}, nil, nil)
 }
 
 func (c *Cmder) NotificationPurge() error {
