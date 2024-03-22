@@ -7,7 +7,7 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/lpac"
 )
 
-func processNotification(conn *Conn, data []byte) error {
+func processNotification(conn *Conn) error {
 	cmder := lpac.NewCmder(conn.APDU)
 	notifications, err := cmder.NotificationList()
 	if err != nil {

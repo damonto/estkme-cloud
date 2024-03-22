@@ -33,7 +33,7 @@ func (c *Conn) registerHandlers() {
 		TagProcessNotification: func(conn *Conn, data []byte) error {
 			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Processing notifications..."))
-			if err := processNotification(conn, data); err != nil {
+			if err := processNotification(conn); err != nil {
 				slog.Error("error processing notification", "error", err)
 				return conn.Send(TagMessageBox, []byte("Process failed \n"+err.Error()))
 			}
