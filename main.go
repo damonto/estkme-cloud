@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/config"
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/lpac"
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/rlpa"
+	"github.com/damonto/estkme-rlpa-server/internal/config"
+	"github.com/damonto/estkme-rlpa-server/internal/lpac"
+	"github.com/damonto/estkme-rlpa-server/internal/rlpa"
 )
 
 func init() {
@@ -17,7 +17,6 @@ func init() {
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "rLPA server listen address")
 	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-beta.1", "lpac version")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
-	flag.StringVar(&config.C.BotToken, "bot-token", "", "telegram bot token")
 	flag.Parse()
 }
 
@@ -40,7 +39,6 @@ func main() {
 			panic(err)
 		}
 	}()
-
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

@@ -6,10 +6,9 @@ import (
 )
 
 type Config struct {
-	ListenAddress    string
-	LpacVersion      string
-	DataDir          string
-	BotToken		 string
+	ListenAddress string
+	LpacVersion   string
+	DataDir       string
 }
 
 var C = &Config{}

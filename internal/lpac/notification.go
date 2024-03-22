@@ -11,6 +11,13 @@ type Notification struct {
 
 type Notifications = []Notification
 
+const (
+	NotificationProfileManagementOperationDisable   = "disable"
+	NotificationProfileManagementOperationEnable    = "enable"
+	NotificationProfileManagementOperationInstall = "install"
+	NotificationProfileManagementOperationDelete   = "delete"
+)
+
 func (c *Cmder) NotificationList() (Notifications, error) {
 	var notifications Notifications
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {

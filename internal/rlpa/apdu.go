@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"sync"
 
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/transmitter"
+	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
 )
 
 type apdu struct {
-	glock sync.Mutex
-	apduLock    sync.Mutex
+	glock    sync.Mutex
+	apduLock sync.Mutex
 	conn     *Connection
 	receiver chan []byte
 }

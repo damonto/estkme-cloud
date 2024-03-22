@@ -86,7 +86,6 @@ func (s *server) id(tcpConn *net.TCPConn) string {
 	sqid, _ := sqids.New(sqids.Options{
 		MinLength: 8,
 	})
-
 	netAddr, _ := net.ResolveTCPAddr("tcp", tcpConn.RemoteAddr().String())
 	id, _ := sqid.Encode([]uint64{uint64(netAddr.Port), rand.Uint64N(10000)})
 	return id

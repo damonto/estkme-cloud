@@ -3,7 +3,7 @@ package rlpa
 import (
 	"bytes"
 
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/lpac"
+	"github.com/damonto/estkme-rlpa-server/internal/lpac"
 )
 
 func downloadProfile(conn *Connection, data []byte) error {

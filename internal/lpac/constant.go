@@ -22,6 +22,6 @@ var ProgressMessages = map[string]string{
 	"es9p_authenticate_client":             "Authenticating client",
 	"es9p_handle_notification":             "Handling notification",
 	"es9p_get_bound_profile_package":       "Getting bound profile package",
-	"es10b_load_bound_profile_package":     "Loading bound profile package",
+	"es10b_load_bound_profile_package":     "Loading bound profile package, It may take a few minutes",
 	"es10b_prepare_download":               "Preparing download",
 }

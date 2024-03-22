@@ -7,7 +7,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/damonto/estkme-rlpa-server/internal/pkg/transmitter"
+	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
 )
 
 type Connection struct {
@@ -28,20 +28,25 @@ func NewConnection(id string, conn *net.TCPConn) *Connection {
 func (c *Connection) registerHandlers() {
 	c.handlers = map[byte]Handler{
 		TagManagement: func(conn *Connection, data []byte) error {
-			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN code\n"+conn.Id))
+			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 		},
 		TagProcessNotification: func(conn *Connection, data []byte) error {
 			defer conn.Close()
-			return conn.Send(TagMessageBox, []byte("We strongly recommend you use the management mode to process notifications. \n You are now disconnected. \n Goodbye!"))
+			conn.Send(TagMessageBox, []byte("Processing notifications..."))
+			if err := processNotification(conn, data); err != nil {
+				slog.Error("error processing notification", "error", err)
+				return conn.Send(TagMessageBox, []byte("Process failed \n"+err.Error()))
+			}
+			return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
 		},
 		TagDownloadProfile: func(conn *Connection, data []byte) error {
 			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
 			if err := downloadProfile(conn, data); err != nil {
 				slog.Error("error downloading profile", "error", err)
-				return conn.Send(TagMessageBox, []byte("download failed \n"+err.Error()))
+				return conn.Send(TagMessageBox, []byte("Download failed \n"+err.Error()))
 			}
-			return conn.Send(TagMessageBox, []byte("download successful"))
+			return conn.Send(TagMessageBox, []byte("Your profile has been downloaded successfully"))
 		},
 	}
 }
