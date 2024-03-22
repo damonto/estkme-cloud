@@ -2,14 +2,20 @@ package rlpa
 
 import (
 	"bytes"
+	"errors"
 
 	"github.com/damonto/estkme-rlpa-server/internal/lpac"
+)
+
+const (
+	ErrInvalidActivationCode = "invalid activation code"
+	ErrNeedConfirmationCode  = "please enter the confirmation code in the following format. "
 )
 
 func downloadProfile(conn *Connection, data []byte) error {
 	parts := bytes.Split(data, []byte{0x02})
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
-		return conn.Send(TagMessageBox, []byte("Invalid activation code"))
+		return errors.New(ErrInvalidActivationCode)
 	}
 
 	var matchingId string
@@ -22,10 +28,7 @@ func downloadProfile(conn *Connection, data []byte) error {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
 			parts[4] = []byte("ConfirmationCode")
-			return conn.Send(TagMessageBox, []byte(
-				"Need a confirmation code. \n Please enter the confirmation code in the following format. \n"+
-					string(bytes.Join(parts, []byte{0x02})),
-			))
+			return errors.New(ErrNeedConfirmationCode + "\n" + string(bytes.Join(parts, []byte{0x02})))
 		}
 	}
 

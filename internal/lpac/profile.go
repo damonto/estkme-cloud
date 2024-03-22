@@ -24,10 +24,16 @@ type Profile struct {
 	Class        string `json:"profileClass"`
 }
 
-type Profiles = []Profile
+type DiscoveryResponse struct {
+	RspServerAddress string `json:"rspServerAddress"`
+}
 
-func (c *Cmder) ProfileList() (Profiles, error) {
-	var profiles Profiles
+const (
+	ErrDeletionNotificationNotFound = "deletion notification not found"
+)
+
+func (c *Cmder) ProfileList() ([]Profile, error) {
+	var profiles []Profile
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return profiles, err
 	}
@@ -35,7 +41,7 @@ func (c *Cmder) ProfileList() (Profiles, error) {
 }
 
 func (c *Cmder) ProfileInfo(ICCID string) (Profile, error) {
-	var profiles Profiles
+	var profiles []Profile
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return Profile{}, err
 	}
@@ -123,11 +129,19 @@ func (c *Cmder) DeleteProfile(ICCID string) error {
 		}
 	}
 	if deletionNotificationSeqNumber == math.MaxInt {
-		return errors.New("deletion notification not found")
+		return errors.New(ErrDeletionNotificationNotFound)
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
 
 func (c *Cmder) SetNickname(ICCID string, nickname string) error {
 	return c.Run([]string{"profile", "nickname", ICCID, nickname}, nil, nil)
+}
+
+func (c *Cmder) Discovery() ([]DiscoveryResponse, error) {
+	var response []DiscoveryResponse
+	if err := c.Run([]string{"profile", "discovery"}, &response, nil); err != nil {
+		return response, err
+	}
+	return response, nil
 }

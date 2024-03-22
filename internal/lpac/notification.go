@@ -9,17 +9,15 @@ type Notification struct {
 	ICCID                      string `json:"iccid"`
 }
 
-type Notifications = []Notification
-
 const (
-	NotificationProfileManagementOperationDisable   = "disable"
-	NotificationProfileManagementOperationEnable    = "enable"
+	NotificationProfileManagementOperationDisable = "disable"
+	NotificationProfileManagementOperationEnable  = "enable"
 	NotificationProfileManagementOperationInstall = "install"
-	NotificationProfileManagementOperationDelete   = "delete"
+	NotificationProfileManagementOperationDelete  = "delete"
 )
 
-func (c *Cmder) NotificationList() (Notifications, error) {
-	var notifications Notifications
+func (c *Cmder) NotificationList() ([]Notification, error) {
+	var notifications []Notification
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {
 		return notifications, err
 	}
