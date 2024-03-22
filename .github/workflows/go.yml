@@ -15,10 +15,12 @@ jobs:
     strategy:
       matrix:
         build:
-          - { os: linux, arch: amd64, name: Linux amd64 }
-          - { os: linux, arch: arm64, name: Linux arm64 }
-          - { os: darwin, arch: amd64, name: macOS amd64 }
-          - { os: windows, arch: amd64, name: Windows amd64 }
+          - { os: linux, arch: amd64, name: Linux AMD64 }
+          - { os: linux, arch: arm64, name: Linux ARM64 }
+          - { os: darwin, arch: amd64, name: macOS AMD64 }
+          - { os: darwin, arch: arm64, name: macOS ARM64 }
+          - { os: windows, arch: amd64, name: Windows AMD64 }
+          - { os: windows, arch: arm64, name: Windows ARM64 }
 
     steps:
       - name: Checkout code
@@ -32,14 +34,14 @@ jobs:
 
       - name: Build for ${{ matrix.build.name }}
         run: |
-          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
-          chmod +x estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
+          CGO_ENABLED=0 GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
+          chmod +x estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
 
       - name: Upload ${{ matrix.build.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
-          path: estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
+          name: estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
+          path: estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
 
   release:
     name: Release
