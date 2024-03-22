@@ -2,7 +2,7 @@
 
 ### Introduction
 
-This is a simple server that allows you to remotely process requests from the eSTK.me removable eUICC. The project is written in Go and it's just a toy project. It's not meant to be used in production.
+This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications. The project is written in Go and is just a toy project, not suitable for production use.
 
 If you want to deploy your own rLPA server, I recommend you to use the [official rLPA server](https://github.com/estkme-group/lpac/blob/main/src/rlpa-server.php) instead.
 
