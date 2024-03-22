@@ -10,12 +10,15 @@ on:
 
 jobs:
   build:
+    name: Build for ${{ matrix.build.name }}
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        goos: [linux, darwin, windows]
-        goarch: [amd64, arm64]
+        build:
+          - { os: linux, arch: amd64, name: Linux amd64 }
+          - { os: linux, arch: arm64, name: Linux arm64 }
+          - { os: darwin, arch: amd64, name: macOS amd64 }
+          - { os: windows, arch: amd64, name: Windows amd64 }
 
     steps:
       - name: Checkout code
@@ -27,19 +30,19 @@ jobs:
           go-version: 1.22
         id: go
 
-      - name: Build
+      - name: Build for ${{ matrix.build.name }}
         run: |
-          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server-${{ matrix.goos }}-${{ matrix.goarch }}
-          chmod +x estkme-rlpa-server-${{ matrix.goos }}-${{ matrix.goarch }}
+          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
+          chmod +x estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
 
-      - name: Upload Artifact
+      - name: Upload ${{ matrix.build.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: estkme-rlpa-server-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: estkme-rlpa-server-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
+          path: estkme-rlpa-server-${{ matrix.os }}-${{ matrix.arch }}
 
   release:
-    name: release
+    name: Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
