@@ -12,7 +12,7 @@ const (
 	ErrNeedConfirmationCode  = "please enter the confirmation code in the following format. "
 )
 
-func downloadProfile(conn *Connection, data []byte) error {
+func downloadProfile(conn *Conn, data []byte) error {
 	parts := bytes.Split(data, []byte{0x02})
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
 		return errors.New(ErrInvalidActivationCode)

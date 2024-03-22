@@ -10,11 +10,11 @@ import (
 type apdu struct {
 	glock    sync.Mutex
 	apduLock sync.Mutex
-	conn     *Connection
+	conn     *Conn
 	receiver chan []byte
 }
 
-func NewAPDU(conn *Connection) transmitter.APDU {
+func NewAPDU(conn *Conn) transmitter.APDU {
 	return &apdu{conn: conn, receiver: make(chan []byte, 1)}
 }
 

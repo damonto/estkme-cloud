@@ -10,7 +10,7 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
 )
 
-type Connection struct {
+type Conn struct {
 	Id       string
 	Conn     *net.TCPConn
 	APDU     transmitter.APDU
@@ -18,19 +18,19 @@ type Connection struct {
 	handlers map[byte]Handler
 }
 
-func NewConnection(id string, conn *net.TCPConn) *Connection {
-	c := &Connection{Id: id, Conn: conn}
+func NewConn(id string, conn *net.TCPConn) *Conn {
+	c := &Conn{Id: id, Conn: conn}
 	c.APDU = NewAPDU(c)
 	c.registerHandlers()
 	return c
 }
 
-func (c *Connection) registerHandlers() {
+func (c *Conn) registerHandlers() {
 	c.handlers = map[byte]Handler{
-		TagManagement: func(conn *Connection, data []byte) error {
+		TagManagement: func(conn *Conn, data []byte) error {
 			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 		},
-		TagProcessNotification: func(conn *Connection, data []byte) error {
+		TagProcessNotification: func(conn *Conn, data []byte) error {
 			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Processing notifications..."))
 			if err := processNotification(conn, data); err != nil {
@@ -39,7 +39,7 @@ func (c *Connection) registerHandlers() {
 			}
 			return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
 		},
-		TagDownloadProfile: func(conn *Connection, data []byte) error {
+		TagDownloadProfile: func(conn *Conn, data []byte) error {
 			defer conn.Close()
 			conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
 			if err := downloadProfile(conn, data); err != nil {
@@ -51,7 +51,7 @@ func (c *Connection) registerHandlers() {
 	}
 }
 
-func (c *Connection) Dispatch(tag byte, data []byte) {
+func (c *Conn) Dispatch(tag byte, data []byte) {
 	if handler, ok := c.handlers[tag]; ok {
 		if err := handler(c, data); err != nil {
 			slog.Error("error handling tag", "tag", tag, "data", data, "error", err)
@@ -62,7 +62,7 @@ func (c *Connection) Dispatch(tag byte, data []byte) {
 	}
 }
 
-func (c *Connection) Send(tag byte, data []byte) error {
+func (c *Conn) Send(tag byte, data []byte) error {
 	c.lock.TryLock()
 	defer c.lock.Unlock()
 	packet := c.pack(tag, data)
@@ -75,7 +75,7 @@ func (c *Connection) Send(tag byte, data []byte) error {
 	return err
 }
 
-func (c *Connection) Read() (byte, []byte, error) {
+func (c *Conn) Read() (byte, []byte, error) {
 	header := make([]byte, 3)
 	_, err := c.Conn.Read(header)
 	if err != nil {
@@ -99,7 +99,7 @@ func (c *Connection) Read() (byte, []byte, error) {
 	return tag, data, nil
 }
 
-func (c *Connection) pack(tag byte, data []byte) []byte {
+func (c *Conn) pack(tag byte, data []byte) []byte {
 	var packet = make([]byte, len(data)+3)
 	packet[0] = tag
 	binary.LittleEndian.PutUint16(packet[1:], uint16(len(data)))
@@ -107,7 +107,7 @@ func (c *Connection) pack(tag byte, data []byte) []byte {
 	return packet
 }
 
-func (c *Connection) Close() error {
+func (c *Conn) Close() error {
 	c.Send(TagClose, nil)
 	return c.Conn.Close()
 }

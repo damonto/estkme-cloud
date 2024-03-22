@@ -1,3 +1,3 @@
 package rlpa
 
-type Handler = func(conn *Connection, data []byte) error
+type Handler = func(conn *Conn, data []byte) error

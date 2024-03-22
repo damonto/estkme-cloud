@@ -6,15 +6,15 @@ import (
 )
 
 type Manager interface {
-	Add(id string, connection *Connection)
+	Add(id string, connection *Conn)
 	Remove(id string)
-	Get(id string) (*Connection, error)
-	GetAll() []*Connection
+	Get(id string) (*Conn, error)
+	GetAll() []*Conn
 	Len() int
 }
 
 const (
-	ErrConnectionNotFound = "connection not found"
+	ErrConnNotFound = "connection not found"
 )
 
 type manager struct {
@@ -25,7 +25,7 @@ func NewManager() Manager {
 	return &manager{}
 }
 
-func (m *manager) Add(id string, connection *Connection) {
+func (m *manager) Add(id string, connection *Conn) {
 	m.connections.Store(id, connection)
 }
 
@@ -33,18 +33,18 @@ func (m *manager) Remove(id string) {
 	m.connections.Delete(id)
 }
 
-func (m *manager) Get(id string) (*Connection, error) {
+func (m *manager) Get(id string) (*Conn, error) {
 	conn, ok := m.connections.Load(id)
 	if !ok {
-		return nil, errors.New(ErrConnectionNotFound)
+		return nil, errors.New(ErrConnNotFound)
 	}
-	return conn.(*Connection), nil
+	return conn.(*Conn), nil
 }
 
-func (m *manager) GetAll() []*Connection {
-	var connections []*Connection
+func (m *manager) GetAll() []*Conn {
+	var connections []*Conn
 	m.connections.Range(func(_, value interface{}) bool {
-		connections = append(connections, value.(*Connection))
+		connections = append(connections, value.(*Conn))
 		return true
 	})
 	return connections
