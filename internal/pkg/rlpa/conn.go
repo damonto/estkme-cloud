@@ -14,7 +14,7 @@ type Connection struct {
 	Id       string
 	Conn     *net.TCPConn
 	APDU     transmitter.APDU
-	mutx     sync.Mutex
+	lock     sync.Mutex
 	handlers map[byte]Handler
 }
 
@@ -58,8 +58,8 @@ func (c *Connection) Dispatch(tag byte, data []byte) {
 }
 
 func (c *Connection) Send(tag byte, data []byte) error {
-	c.mutx.Lock()
-	defer c.mutx.Unlock()
+	c.lock.TryLock()
+	defer c.lock.Unlock()
 	packet := c.pack(tag, data)
 	if tag == TagAPDU {
 		slog.Info("sending data", "tag", tag, "packet", hex.EncodeToString(packet))

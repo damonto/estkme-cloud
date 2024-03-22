@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"math/rand/v2"
 	"net"
 	"time"
 
@@ -83,10 +84,11 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 
 func (s *server) id(tcpConn *net.TCPConn) string {
 	sqid, _ := sqids.New(sqids.Options{
-		MinLength: 6,
+		MinLength: 8,
 	})
+
 	netAddr, _ := net.ResolveTCPAddr("tcp", tcpConn.RemoteAddr().String())
-	id, _ := sqid.Encode([]uint64{uint64(netAddr.Port)})
+	id, _ := sqid.Encode([]uint64{uint64(netAddr.Port), rand.Uint64N(10000)})
 	return id
 }
 

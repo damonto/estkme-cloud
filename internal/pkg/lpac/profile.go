@@ -17,7 +17,7 @@ type Profile struct {
 	ISDPAid      string `json:"isdpAid"`
 	State        string `json:"profileState"`
 	Nickname     string `json:"profileNickname"`
-	ProviderName string `json:"profileProviderName"`
+	ProviderName string `json:"serviceProviderName"`
 	ProfileName  string `json:"profileName"`
 	IconType     string `json:"iconType"`
 	Icon         string `json:"icon"`
