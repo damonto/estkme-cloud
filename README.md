@@ -52,7 +52,7 @@ Usage of estkme-rlpa-server:
 
 If you wish to run the program in the background, you can utilize the systemctl command. Here is an example of how to achieve this:
 
-1. Start by creating a service file in the /etc/systemd/system directory. For instance, you can name the file telegram-sms.service and include the following content:
+1. Start by creating a service file in the /etc/systemd/system directory. For instance, you can name the file estkme-rlpa-server.service and include the following content:
 
 ```plaintext
 [Unit]
