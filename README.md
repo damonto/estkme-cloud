@@ -31,6 +31,15 @@ Sometimes, you might need to set executable permissions for the binary file usin
 chmod +x estkme-rlpa-server
 ```
 
+You must also install the following dependencies:
+
+```bash
+# Debian
+apt-get install -y --no-install-recommends ca-certificates libpcsclite1 libcurl4
+# Arch Linux
+pacman -S pcsclite
+```
+
 Once done, you can run the server using the following command:
 
 ```bash
