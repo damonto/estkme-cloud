@@ -8,8 +8,6 @@ import (
 	"math/rand/v2"
 	"net"
 	"time"
-
-	"github.com/sqids/sqids-go"
 )
 
 type Server interface {
@@ -52,7 +50,7 @@ func (s *server) Listen(address string) error {
 }
 
 func (s *server) handleConn(tcpConn *net.TCPConn) {
-	id := s.id(tcpConn)
+	id := s.id()
 	conn := NewConn(id, tcpConn)
 	s.manager.Add(id, conn)
 	slog.Info("new connection from", "id", id)
@@ -82,13 +80,17 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	}
 }
 
-func (s *server) id(tcpConn *net.TCPConn) string {
-	sqid, _ := sqids.New(sqids.Options{
-		MinLength: 8,
-	})
-	netAddr, _ := net.ResolveTCPAddr("tcp", tcpConn.RemoteAddr().String())
-	id, _ := sqid.Encode([]uint64{uint64(netAddr.Port), rand.Uint64N(10000)})
-	return id
+func (s *server) id() string {
+	seeds := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+	id := make([]rune, 6)
+	for i := range id {
+		id[i] = seeds[rand.IntN(len(seeds))]
+	}
+	if _, err := s.manager.Get(string(id)); err.Error() == ErrConnNotFound {
+		return string(id)
+	} else {
+		return s.id()
+	}
 }
 
 func (s *server) Shutdown() error {
