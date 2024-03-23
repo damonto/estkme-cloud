@@ -1,4 +1,4 @@
-FROM golang:1.22.1-bookworm as builder
+FROM golang:1.22.1-alpine as builder
 
 WORKDIR /app
 
@@ -8,16 +8,15 @@ RUN set -ex \
     && go mod download \
     && go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server main.go
 
-FROM debian:bookworm-slim
+FROM alpine:latest
 
 WORKDIR /app
 
 COPY --from=builder /app/estkme-rlpa-server /app/estkme-rlpa-server
 
 RUN set -ex \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates libpcsclite1 libcurl4 \
-    && rm -rf /var/lib/apt/lists/* \
+    && apk add --no-cache gcompat ca-certificates pcsc-lite-libs libcurl \
+    && update-ca-certificates \
     && chmod +x /app/estkme-rlpa-server
 
 EXPOSE 1888
