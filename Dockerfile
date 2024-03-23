@@ -6,7 +6,7 @@ COPY . .
 
 RUN set -ex \
     && go mod download \
-    && go build -trimpath -ldflags="-w -s -X main.version=${VERSION}" -o estkme-rlpa-server main.go
+    && go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server main.go
 
 FROM debian:bookworm-slim
 
