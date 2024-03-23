@@ -13,7 +13,16 @@ const (
 )
 
 func downloadProfile(conn *Conn, data []byte) error {
-	parts := bytes.Split(data, []byte{0x02})
+	var imei string
+	var parts [][]byte
+	if bytes.Contains(data, []byte{0x23}) {
+		index := bytes.Index(data, []byte{0x23})
+		imei = string(data[index+1:])
+		parts = bytes.Split(data[:index], []byte{0x02})
+	} else {
+		parts = bytes.Split(data, []byte{0x02})
+	}
+
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
 		return errors.New(ErrInvalidActivationCode)
 	}
@@ -36,6 +45,7 @@ func downloadProfile(conn *Conn, data []byte) error {
 		SMDP:             string(parts[1]),
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,
+		IMEI:             imei,
 	}, func(current string) error {
 		return conn.Send(TagMessageBox, []byte(current))
 	})

@@ -35,7 +35,6 @@ jobs:
       - name: Build for ${{ matrix.build.name }}
         run: |
           CGO_ENABLED=0 GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
-          chmod +x estkme-rlpa-server-${{ matrix.build.os }}-${{ matrix.build.arch }}
 
       - name: Upload ${{ matrix.build.name }} to Artifact
         uses: actions/upload-artifact@v4

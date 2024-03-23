@@ -2,23 +2,24 @@
 
 ### Introduction
 
-This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications. The project is written in Go and is just a toy project, not suitable for production use.
+This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications.
+
+The project is written in Go and is just a toy project, not suitable for production use.
 
 If you want to deploy your own rLPA server, I recommend you to use the [official rLPA server](https://github.com/estkme-group/lpac/blob/main/src/rlpa-server.php) instead.
 
-
-### Installation and Usage
+### Installation
 
 You can download the binary release from the [releases page](https://github.com/damonto/estkme-rlpa-server/releases) or you can build it yourself.
 
 If you want to build it yourself, you can run the following commands:
 ```bash
-git@github.com:damonto/estkme-rlpa-server.git
+git clone git@github.com:damonto/estkme-rlpa-server.git
 cd estkme-rlpa-server
 go build -trimpath -ldflags="-w -s" -o estkme-rlpa-server main.go
 ```
 
-If you have already installed Go (Golang) on your system, you can also install the latest version using the following command:
+You can also install the latest version using the following command:
 
 ```bash
 go install github.com/damonto/estkme-rlpa-server@latest
@@ -81,3 +82,39 @@ systemctl start estkme-rlpa-server
 ```bash
 systemctl enable estkme-rlpa-server
 ```
+
+### Usage
+
+Once the server is running, the server will listen on the specified port (default: 1888) and you can send requests to the server.
+
+#### Download
+
+To download a profile, you should enable the remote LPA feature on the eUICC and set the rLPA server URL to the server address. The server will handle the download request and download the profile to the eUICC.
+
+The server support downloading profiles with confirmation code and custom IMEI.
+
+If your eSIM provider requires a confirmation code, you can use the following activation code format:
+
+```plaintext
+LPA:1$SM-DP+$Matching Id$$<confirmation_code>
+```
+
+Please replace `<confirmation_code>` with the actual confirmation code.
+
+If your eSIM provider requires a custom IMEI, you can use the following activation code format:
+
+1. With confirmation code:
+```plaintext
+LPA:1$SM-DP+$Matching Id$$<confirmation_code>#<custom_imei>
+```
+
+2. Without confirmation code:
+```plaintext
+LPA:1$SM-DP+$Matching Id#<custom_imei>
+```
+
+Please replace `<custom_imei>` with the actual IMEI.
+
+#### Notification
+
+If you click the "Process Notification" button on the eSTK.me eUICC, the server will receive a notification request and send all notifications. Such as install, enable, disable, and delete notifications. All enable, disable, and install notifications will be deleted after sending.. All enable, disable and install will be deleted after sending. The delete notifications will be kept in your eSTK.me eUICC.
