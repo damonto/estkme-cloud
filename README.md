@@ -58,6 +58,8 @@ Usage of estkme-rlpa-server:
         rLPA server listen address (default ":1888")
   -lpac-version string
         lpac version (default "v2.0.0-beta.1")
+  -dont-download
+        don't download lpac
 ```
 
 If you wish to run the program in the background, you can utilize the systemctl command. Here is an example of how to achieve this:

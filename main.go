@@ -15,8 +15,9 @@ import (
 func init() {
 	cwd, _ := os.Getwd()
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "rLPA server listen address")
-	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-beta.1", "lpac version")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
+	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0-beta.1", "lpac version")
+	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.Parse()
 }
 
@@ -26,9 +27,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := lpac.Download(config.C.DataDir, config.C.LpacVersion); err != nil {
-		slog.Error("failed to download lpac", "error", err)
-		os.Exit(1)
+	if !config.C.DontDownload {
+		if err := lpac.Download(config.C.DataDir, config.C.LpacVersion); err != nil {
+			slog.Error("failed to download lpac", "error", err)
+			os.Exit(1)
+		}
 	}
 
 	manager := rlpa.NewManager()

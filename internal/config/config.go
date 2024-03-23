@@ -9,6 +9,7 @@ type Config struct {
 	ListenAddress string
 	LpacVersion   string
 	DataDir       string
+	DontDownload  bool
 }
 
 var C = &Config{}
