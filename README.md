@@ -73,7 +73,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=your_user_here
 Restart=on-failure
 ExecStart=/your/binary/path/here/estkme-rlpa-server
 RestartSec=10s
