@@ -128,8 +128,9 @@ Please replace `<custom_imei>` with the actual IMEI.
 
 #### Notification
 
-If you click the "Process Notification" button on the eSTK.me eUICC, the server will receive a notification request and send all notifications. Such as install, enable, disable, and delete notifications. All enable, disable, and install notifications will be deleted after sending.
+If you click the "Process Notification" button on the eSTK.me eUICC, the server will receive a notification request and send all notifications. Such as install, enable, disable, and delete notifications.
 
+Please note that:
 
 1. All enable, disable and install notifications will be deleted after sending.
 
