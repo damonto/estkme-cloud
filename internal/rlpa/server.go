@@ -60,10 +60,12 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	for {
 		tag, data, err := conn.Read()
 		if err != nil {
-			if err == io.EOF || errors.Is(err, net.ErrClosed) || errors.Is(err, ErrorTagUnknown) {
+			if err == io.EOF || errors.Is(err, net.ErrClosed) {
 				return
 			}
-			slog.Error("error reading from connection", "error", err)
+			if !errors.Is(err, ErrorTagUnknown) {
+				slog.Error("error reading from connection", "error", err)
+			}
 			continue
 		}
 
