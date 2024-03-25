@@ -66,7 +66,7 @@ func (c *Conn) Dispatch(tag byte, data []byte) {
 }
 
 func (c *Conn) Send(tag byte, data []byte) error {
-	c.lock.TryLock()
+	c.lock.Lock()
 	defer c.lock.Unlock()
 	packet := c.pack(tag, data)
 	if tag == TagAPDU {

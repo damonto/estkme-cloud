@@ -18,19 +18,19 @@ func NewAPDU(conn *Conn) transmitter.APDU {
 }
 
 func (a *apdu) Lock() error {
-	a.lock.TryLock()
+	a.lock.Lock()
 	defer a.lock.Unlock()
 	return a.conn.Send(TagAPDULock, nil)
 }
 
 func (a *apdu) Unlock() error {
-	a.lock.TryLock()
+	a.lock.Lock()
 	defer a.lock.Unlock()
 	return a.conn.Send(TagAPDUUnlock, nil)
 }
 
 func (a *apdu) Transmit(command string) (string, error) {
-	a.lock.TryLock()
+	a.lock.Lock()
 	defer a.lock.Unlock()
 
 	b, _ := hex.DecodeString(command)
