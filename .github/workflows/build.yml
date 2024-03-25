@@ -1,4 +1,4 @@
-name: Go
+name: Build and Release
 
 on:
   workflow_dispatch:
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/v')
+    # if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Docker meta
         id: meta
