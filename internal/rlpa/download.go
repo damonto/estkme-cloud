@@ -9,7 +9,7 @@ import (
 
 const (
 	ErrInvalidActivationCode = "invalid activation code"
-	ErrNeedConfirmationCode  = "please enter the confirmation code in the following format. "
+	ErrNeedConfirmationCode  = "please enter the confirmation code in the following format"
 )
 
 func downloadProfile(conn *Conn, data []byte) error {
