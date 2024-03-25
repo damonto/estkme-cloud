@@ -73,8 +73,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            damonto/estkme-rlpa-server
-            ghcr.io/damonto/estkme-rlpa-server
+            ${{ github.repository_owner }}/estkme-rlpa-server
+            ghcr.io/${{ github.repository_owner }}/estkme-rlpa-server
           tags: |
             type=schedule
             type=ref,event=branch

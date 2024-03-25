@@ -94,6 +94,16 @@ systemctl start estkme-rlpa-server
 systemctl enable estkme-rlpa-server
 ```
 
+#### Docker
+
+You can also run the server using Docker. You can use the following command to run the server:
+
+```bash
+docker run -d --name estkme-rlpa-server -p 1888:1888 damonto/estkme-rlpa-server:latest
+# or use the GitHub Container Registry
+docker run -d --name estkme-rlpa-server -p 1888:1888 -v ghcr.io/damonto/estkme-rlpa-server:latest
+```
+
 ### Usage
 
 Once the server is running, the server will listen on the specified port (default: 1888) and you can send requests to the server.
