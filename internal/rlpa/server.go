@@ -36,7 +36,7 @@ func (s *server) Listen(address string) error {
 	for {
 		conn, err := s.listener.AcceptTCP()
 		if err != nil {
-			if err == io.EOF || errors.Is(err, net.ErrClosed) {
+			if errors.Is(err, net.ErrClosed) {
 				return nil
 			}
 			conn.Close()
@@ -60,7 +60,7 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	for {
 		tag, data, err := conn.Read()
 		if err != nil {
-			if err == io.EOF || errors.Is(err, net.ErrClosed) {
+			if err == io.EOF || errors.Is(err, net.ErrClosed) || errors.Is(err, ErrorTagUnknown) {
 				return
 			}
 			slog.Error("error reading from connection", "error", err)

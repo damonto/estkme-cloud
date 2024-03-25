@@ -11,3 +11,15 @@ const (
 	TagAPDU                = 0xFE
 	TagAPDUUnlock          = 0xFF
 )
+
+var KnownTags = []byte{
+	TagAPDU,
+	TagAPDULock,
+	TagAPDUUnlock,
+	TagClose,
+	TagDownloadProfile,
+	TagProcessNotification,
+	TagManagement,
+	TagMessageBox,
+	TagReboot,
+}

@@ -3,6 +3,7 @@ package rlpa
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"log/slog"
 	"net"
 	"sync"
@@ -17,6 +18,8 @@ type Conn struct {
 	lock     sync.Mutex
 	handlers map[byte]Handler
 }
+
+var ErrorTagUnknown = errors.New("unknown tag")
 
 func NewConn(id string, conn *net.TCPConn) *Conn {
 	c := &Conn{Id: id, Conn: conn}
@@ -81,10 +84,12 @@ func (c *Conn) Read() (byte, []byte, error) {
 	if err != nil {
 		return 0, nil, err
 	}
-	tag := header[0]
+	if !c.isKnownTag(header[0]) {
+		return 0, nil, ErrorTagUnknown
+	}
+
 	length := binary.LittleEndian.Uint16(header[1:3])
 	data := make([]byte, length)
-
 	len, err := c.Conn.Read(data)
 	if err != nil {
 		return 0, nil, err
@@ -96,7 +101,16 @@ func (c *Conn) Read() (byte, []byte, error) {
 		}
 		len += n
 	}
-	return tag, data, nil
+	return header[0], data, nil
+}
+
+func (c *Conn) isKnownTag(tag byte) bool {
+	for _, knownTag := range KnownTags {
+		if tag == knownTag {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Conn) pack(tag byte, data []byte) []byte {
@@ -108,6 +122,6 @@ func (c *Conn) pack(tag byte, data []byte) []byte {
 }
 
 func (c *Conn) Close() error {
-	c.Send(TagClose, nil)
-	return c.Conn.Close()
+	defer c.Conn.Close()
+	return c.Send(TagClose, nil)
 }
