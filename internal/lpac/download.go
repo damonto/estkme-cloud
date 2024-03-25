@@ -28,9 +28,10 @@ type GitHubReleaseAsset struct {
 
 var packageNames = map[string]string{
 	"linux:amd64":   "lpac-linux-x86_64.zip",
-	"windows:amd64": "lpac-windows-x86_64.zip",
+	"windows:amd64": "lpac-windows-x86_64-mingw.zip",
+	"windows:arm64": "lpac-windows-arm64-mingw.zip",
 	"darwin:amd64":  "lpac-darwin-universal.zip",
-	"darwin:arm64":  "lpac-linux-arm64.zip",
+	"darwin:arm64":  "lpac-darwin-universal.zip",
 }
 
 func Download(dataDir, version string) error {
