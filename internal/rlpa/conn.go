@@ -70,9 +70,9 @@ func (c *Conn) Send(tag byte, data []byte) error {
 	defer c.lock.Unlock()
 	packet := c.pack(tag, data)
 	if tag == TagAPDU {
-		slog.Info("sending data", "tag", tag, "packet", hex.EncodeToString(packet))
+		slog.Info("sending data", "id", c.Id, "tag", tag, "packet", hex.EncodeToString(packet))
 	} else {
-		slog.Info("sending data", "tag", tag, "data", string(data))
+		slog.Info("sending data", "id", c.Id, "tag", tag, "data", string(data))
 	}
 	_, err := c.Conn.Write(packet)
 	return err
