@@ -17,10 +17,14 @@ func processNotification(conn *Conn) error {
 	for _, notification := range notifications {
 		if err := cmder.NotificationProcess(notification.SeqNumber, notification.ProfileManagementOperation != lpac.NotificationProfileManagementOperationDelete, nil); err != nil {
 			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "error", err)
-			conn.Send(TagMessageBox, []byte(fmt.Sprintf("Process notification %d failed\n%s", notification.SeqNumber, err.Error())))
+			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Process notification %d failed\n%s", notification.SeqNumber, err.Error()))); err != nil {
+				return err
+			}
 		}
 		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "iccid", notification.ICCID, "operation", notification.ProfileManagementOperation)
-		conn.Send(TagMessageBox, []byte(fmt.Sprintf("Notification has been processed. \n Seq number: %d \n ICCID: %s \n Operation: %s", notification.SeqNumber, notification.ICCID, notification.ProfileManagementOperation)))
+		if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Notification has been processed. \n Seq number: %d \n ICCID: %s \n Operation: %s", notification.SeqNumber, notification.ICCID, notification.ProfileManagementOperation))); err != nil {
+			return err
+		}
 	}
 	return nil
 }
