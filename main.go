@@ -47,5 +47,8 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	slog.Info("shutting down server")
-	server.Shutdown()
+	if err := server.Shutdown(); err != nil {
+		slog.Error("failed to shutdown server", "error", err)
+		os.Exit(1)
+	}
 }

@@ -32,7 +32,6 @@ func (a *apdu) Unlock() error {
 func (a *apdu) Transmit(command string) (string, error) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
-
 	b, _ := hex.DecodeString(command)
 	if err := a.conn.Send(TagAPDU, b); err != nil {
 		return "", err

@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"math/rand/v2"
 	"net"
+	"os"
+	"sync"
 	"time"
 )
 
@@ -18,6 +20,7 @@ type Server interface {
 type server struct {
 	listener *net.TCPListener
 	manager  Manager
+	wg       sync.WaitGroup
 }
 
 func NewServer(manager Manager) Server {
@@ -46,23 +49,28 @@ func (s *server) Listen(address string) error {
 		conn.SetKeepAlive(true)
 		conn.SetKeepAlivePeriod(30 * time.Second)
 		// TODO: Delete this line when new eSTK.me firmware is released. (which will support the heartbeat tag)
-		conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
-		go s.handleConn(conn)
+		conn.SetReadDeadline(time.Now().Add(1 * time.Minute))
+
+		s.wg.Add(1)
+		go func() {
+			defer s.wg.Done()
+			s.handleConn(conn)
+		}()
 	}
 }
 
 func (s *server) handleConn(tcpConn *net.TCPConn) {
 	id := s.id()
+	slog.Info("new connection from", "id", id)
 	conn := NewConn(id, tcpConn)
 	s.manager.Add(id, conn)
-	slog.Info("new connection from", "id", id)
 	defer conn.Close()
 	defer s.manager.Remove(id)
 
 	for {
 		tag, data, err := conn.Read()
 		if err != nil {
-			if err == io.EOF || errors.Is(err, net.ErrClosed) {
+			if err == io.EOF || errors.Is(err, net.ErrClosed) || os.IsTimeout(err) {
 				return
 			}
 			if !errors.Is(err, ErrorTagUnknown) {
@@ -98,9 +106,14 @@ func (s *server) id() string {
 }
 
 func (s *server) Shutdown() error {
+	if err := s.listener.Close(); err != nil {
+		return err
+	}
+	slog.Info("waiting for all connections to close, please wait...", "count", s.manager.Len())
+	s.wg.Wait()
 	for _, conn := range s.manager.GetAll() {
 		conn.Close()
 		s.manager.Remove(conn.Id)
 	}
-	return s.listener.Close()
+	return nil
 }

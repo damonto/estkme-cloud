@@ -16,6 +16,7 @@ type Conn struct {
 	Conn     *net.TCPConn
 	APDU     transmitter.APDU
 	lock     sync.Mutex
+	isClosed bool
 	handlers map[byte]Handler
 }
 
@@ -122,6 +123,10 @@ func (c *Conn) pack(tag byte, data []byte) []byte {
 }
 
 func (c *Conn) Close() error {
+	if c.isClosed {
+		return nil
+	}
+	c.isClosed = true
 	defer c.Conn.Close()
 	return c.Send(TagClose, nil)
 }
