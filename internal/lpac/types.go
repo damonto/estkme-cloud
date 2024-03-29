@@ -32,7 +32,3 @@ type Payload struct {
 
 type LPAPyaload = Payload
 type ProgressPayload = Payload
-
-type ES9PError struct {
-	
-}

@@ -11,6 +11,8 @@ import (
 	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
 )
 
+type Handler = func(conn *Conn, data []byte) error
+
 type Conn struct {
 	Id       string
 	Conn     *net.TCPConn

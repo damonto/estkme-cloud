@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	ErrInvalidActivationCode = "invalid activation code"
-	ErrNeedConfirmationCode  = "please enter the confirmation code in the following format"
+	ErrInvalidActivationCode   = "invalid activation code"
+	ErrRequireConfirmationCode = "replace <cc> with a confirmation code and try again\n"
 )
 
 func downloadProfile(conn *Conn, data []byte) error {
@@ -36,8 +36,8 @@ func downloadProfile(conn *Conn, data []byte) error {
 	if len(parts) == 5 {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
-			parts[4] = []byte("ConfirmationCode")
-			return errors.New(ErrNeedConfirmationCode + "\n" + string(bytes.Join(parts, []byte{0x02})))
+			parts[4] = []byte("<cc>")
+			return errors.New(ErrRequireConfirmationCode + string(bytes.Join(parts, []byte{0x02})))
 		}
 	}
 

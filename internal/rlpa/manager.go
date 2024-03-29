@@ -13,8 +13,8 @@ type Manager interface {
 	Len() int
 }
 
-const (
-	ErrConnNotFound = "connection not found"
+var (
+	ErrConnNotFound = errors.New("connection not found")
 )
 
 type manager struct {
@@ -36,7 +36,7 @@ func (m *manager) Remove(id string) {
 func (m *manager) Get(id string) (*Conn, error) {
 	conn, ok := m.connections.Load(id)
 	if !ok {
-		return nil, errors.New(ErrConnNotFound)
+		return nil, ErrConnNotFound
 	}
 	return conn.(*Conn), nil
 }
