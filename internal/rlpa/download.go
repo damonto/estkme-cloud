@@ -9,7 +9,7 @@ import (
 
 const (
 	ErrInvalidActivationCode   = "invalid activation code"
-	ErrRequireConfirmationCode = "replace <cc> with a confirmation code and try again\n"
+	ErrRequireConfirmationCode = "confirmation code is required\n"
 )
 
 func downloadProfile(conn *Conn, data []byte) error {
@@ -36,7 +36,7 @@ func downloadProfile(conn *Conn, data []byte) error {
 	if len(parts) == 5 {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
-			parts[4] = []byte("<cc>")
+			parts[4] = bytes.Replace([]byte("<confirmation_code>"), []byte("_"), []byte{0x11}, 1)
 			return errors.New(ErrRequireConfirmationCode + string(bytes.Join(parts, []byte{0x02})))
 		}
 	}
