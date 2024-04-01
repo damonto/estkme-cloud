@@ -88,7 +88,7 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 		} else {
 			slog.Info("received data from", "id", id, "tag", tag, "data", string(data))
 		}
-		go conn.Dispatch(tag, data)
+		go conn.Handle(tag, data)
 	}
 }
 

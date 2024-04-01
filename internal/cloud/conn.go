@@ -57,7 +57,7 @@ func (c *Conn) registerHandlers() {
 	}
 }
 
-func (c *Conn) Dispatch(tag byte, data []byte) {
+func (c *Conn) Handle(tag byte, data []byte) {
 	if handler, ok := c.handlers[tag]; ok {
 		if err := handler(c, data); err != nil {
 			slog.Error("error handling tag", "tag", tag, "data", data, "error", err)
