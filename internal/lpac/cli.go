@@ -9,15 +9,15 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/damonto/estkme-rlpa-server/internal/config"
-	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
+	"github.com/damonto/estkme-cloud/internal/config"
+	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
 type Cmder struct {
-	APDU transmitter.APDU
+	APDU driver.APDU
 }
 
-func NewCmder(APDU transmitter.APDU) *Cmder {
+func NewCmder(APDU driver.APDU) *Cmder {
 	return &Cmder{APDU: APDU}
 }
 

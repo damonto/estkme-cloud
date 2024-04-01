@@ -1,4 +1,4 @@
-package rlpa
+package cloud
 
 import (
 	"encoding/binary"
@@ -8,7 +8,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
+	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
 type Handler = func(conn *Conn, data []byte) error
@@ -16,7 +16,7 @@ type Handler = func(conn *Conn, data []byte) error
 type Conn struct {
 	Id       string
 	Conn     *net.TCPConn
-	APDU     transmitter.APDU
+	APDU     driver.APDU
 	lock     sync.Mutex
 	isClosed bool
 	handlers map[byte]Handler

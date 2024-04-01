@@ -1,4 +1,4 @@
-package transmitter
+package driver
 
 type APDU interface {
 	Lock() error

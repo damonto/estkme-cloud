@@ -1,10 +1,10 @@
-package rlpa
+package cloud
 
 import (
 	"encoding/hex"
 	"sync"
 
-	"github.com/damonto/estkme-rlpa-server/internal/transmitter"
+	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
 type apdu struct {
@@ -13,7 +13,7 @@ type apdu struct {
 	receiver chan []byte
 }
 
-func NewAPDU(conn *Conn) transmitter.APDU {
+func NewAPDU(conn *Conn) driver.APDU {
 	return &apdu{conn: conn, receiver: make(chan []byte, 1)}
 }
 

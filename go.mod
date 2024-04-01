@@ -1,3 +1,3 @@
-module github.com/damonto/estkme-rlpa-server
+module github.com/damonto/estkme-cloud
 
 go 1.22.1
