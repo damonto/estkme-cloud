@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/damonto/estkme-cloud/internal/config"
-	"github.com/damonto/estkme-cloud/internal/driver"
+	"github.com/damonto/estkme-rlpa-server/internal/config"
+	"github.com/damonto/estkme-rlpa-server/internal/driver"
 )
 
 type Cmder struct {

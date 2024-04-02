@@ -1,10 +1,10 @@
-package cloud
+package rlpa
 
 import (
 	"fmt"
 	"log/slog"
 
-	"github.com/damonto/estkme-cloud/internal/lpac"
+	"github.com/damonto/estkme-rlpa-server/internal/lpac"
 )
 
 func processNotification(conn *Conn) error {

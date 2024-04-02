@@ -1,10 +1,10 @@
-package cloud
+package rlpa
 
 import (
 	"encoding/hex"
 	"sync"
 
-	"github.com/damonto/estkme-cloud/internal/driver"
+	"github.com/damonto/estkme-rlpa-server/internal/driver"
 )
 
 type apdu struct {

@@ -1,4 +1,4 @@
-package cloud
+package rlpa
 
 import (
 	"encoding/hex"
@@ -34,7 +34,7 @@ func (s *server) Listen(address string) error {
 	if err != nil {
 		return err
 	}
-	slog.Info("eSTK.me cloud server is running on", "address", address)
+	slog.Info("eSTK.me rlpa server is running on", "address", address)
 
 	for {
 		conn, err := s.listener.AcceptTCP()

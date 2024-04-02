@@ -7,19 +7,19 @@ COPY . .
 ARG VERSION
 
 RUN set -ex \
-    && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
+    && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-rlpa-server main.go
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/estkme-cloud /app/estkme-cloud
+COPY --from=builder /app/estkme-rlpa-server /app/estkme-rlpa-server
 
 RUN set -ex \
     && apk add --no-cache gcompat ca-certificates pcsc-lite-libs libcurl \
     && update-ca-certificates \
-    && chmod +x /app/estkme-cloud
+    && chmod +x /app/estkme-rlpa-server
 
 EXPOSE 1888
 
-CMD ["/app/estkme-cloud"]
+CMD ["/app/estkme-rlpa-server"]
