@@ -1,4 +1,6 @@
 .git
+.github
+.vscode
 .editorconfig
 AUTHORS.md
 CONTRIBUTING.md
