@@ -15,7 +15,7 @@ type Config struct {
 var C = &Config{}
 
 var (
-	ErrLpacVersionEmpty = errors.New("lpac version is empty")
+	ErrLpacVersionRequired = errors.New("lpac version is required")
 )
 
 func (c *Config) IsValid() error {
@@ -23,7 +23,7 @@ func (c *Config) IsValid() error {
 		return err
 	}
 	if c.LpacVersion == "" {
-		return ErrLpacVersionEmpty
+		return ErrLpacVersionRequired
 	}
 	return nil
 }
