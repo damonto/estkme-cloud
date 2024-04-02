@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-ENV VERSION=""
+ARG VERSION
 
 RUN set -ex \
     && apk add --no-cache git \
