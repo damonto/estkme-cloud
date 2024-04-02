@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-ENV VERSION=""
+ARG VERSION
 
 RUN set -ex \
     && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
