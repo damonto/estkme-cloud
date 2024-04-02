@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+ENV VERSION=""
+
 RUN set -ex \
     && apk add --no-cache git \
-    && VERSION=$(git describe --always --tags --match "v*" --dirty="-dev") \
     && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
 
 FROM alpine:latest
