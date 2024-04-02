@@ -5,8 +5,10 @@ WORKDIR /app
 COPY . .
 
 RUN set -ex \
+    && apk add --no-cache git \
     && go mod download \
-    && go build -trimpath -ldflags="-w -s" -o estkme-cloud main.go
+    && VERSION=$(git describe --always --tags --match "v*" --dirty="-dev") \
+    && go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
 
 FROM alpine:latest
 

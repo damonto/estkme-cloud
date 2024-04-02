@@ -12,6 +12,8 @@ import (
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
+var Version string
+
 func init() {
 	cwd, _ := os.Getwd()
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud server listen address")
@@ -22,6 +24,7 @@ func init() {
 }
 
 func main() {
+	slog.Info("eSTK.me cloud server", "version", Version)
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
 		os.Exit(1)

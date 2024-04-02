@@ -10,11 +10,11 @@ on:
 
 jobs:
   build:
-    name: Build for ${{ matrix.build.name }}
+    name: Build for ${{ matrix.target.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build:
+        target:
           - { os: linux, arch: amd64, name: Linux AMD64 }
           - { os: linux, arch: arm64, name: Linux ARM64 }
           - { os: darwin, arch: amd64, name: macOS AMD64 }
@@ -30,14 +30,15 @@ jobs:
         with:
           go-version: 1.22
         id: go
-      - name: Build for ${{ matrix.build.name }}
+      - name: Build for ${{ matrix.target.name }}
         run: |
-          CGO_ENABLED=0 GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} go build -trimpath -ldflags="-w -s" -o estkme-cloud-${{ matrix.build.os }}-${{ matrix.build.arch }}
-      - name: Upload ${{ matrix.build.name }} to Artifact
+          VERSION=$(git describe --always --tags --match "v*" --dirty="-dev")
+          CGO_ENABLED=0 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
+      - name: Upload ${{ matrix.target.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: estkme-cloud-${{ matrix.build.os }}-${{ matrix.build.arch }}
-          path: estkme-cloud-${{ matrix.build.os }}-${{ matrix.build.arch }}
+          name: estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
+          path: estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
 
   release:
     name: Release
