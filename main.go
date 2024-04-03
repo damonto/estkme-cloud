@@ -25,6 +25,7 @@ func init() {
 
 func main() {
 	slog.Info("eSTK.me rlpa server", "version", Version)
+	config.C.LoadEnv()
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
 		os.Exit(1)
