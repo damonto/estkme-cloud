@@ -30,16 +30,16 @@ func (c *Config) IsValid() error {
 }
 
 func (c *Config) LoadEnv() {
-	if os.Getenv("RLPA_LISTEN_ADDRESS") != "" {
-		c.ListenAddress = os.Getenv("RLPA_LISTEN_ADDRESS")
+	if os.Getenv("ESTKME_CLOUD_LISTEN_ADDRESS") != "" {
+		c.ListenAddress = os.Getenv("ESTKME_CLOUD_LISTEN_ADDRESS")
 	}
-	if os.Getenv("RLPA_LPAC_VERSION") != "" {
-		c.LpacVersion = os.Getenv("RLPA_LPAC_VERSION")
+	if os.Getenv("ESTKME_CLOUD_LPAC_VERSION") != "" {
+		c.LpacVersion = os.Getenv("ESTKME_CLOUD_LPAC_VERSION")
 	}
-	if os.Getenv("RLPA_DATA_DIR") != "" {
-		c.DataDir = os.Getenv("RLPA_DATA_DIR")
+	if os.Getenv("ESTKME_CLOUD_DATA_DIR") != "" {
+		c.DataDir = os.Getenv("ESTKME_CLOUD_DATA_DIR")
 	}
-	if os.Getenv("RLPA_DONT_DOWNLOAD") != "" {
+	if os.Getenv("ESTKME_CLOUD_DONT_DOWNLOAD") != "" {
 		c.DontDownload = true
 	}
 }
