@@ -7,16 +7,16 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/damonto/estkme-rlpa-server/internal/config"
-	"github.com/damonto/estkme-rlpa-server/internal/lpac"
-	"github.com/damonto/estkme-rlpa-server/internal/rlpa"
+	"github.com/damonto/estkme-cloud/internal/cloud"
+	"github.com/damonto/estkme-cloud/internal/config"
+	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
 var Version string
 
 func init() {
 	cwd, _ := os.Getwd()
-	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me rLPA server listen address")
+	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
 	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0", "lpac version")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
@@ -24,7 +24,7 @@ func init() {
 }
 
 func main() {
-	slog.Info("eSTK.me rlpa server", "version", Version)
+	slog.Info("eSTK.me cloud enhance server", "version", Version)
 	config.C.LoadEnv()
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
@@ -38,8 +38,8 @@ func main() {
 		}
 	}
 
-	manager := rlpa.NewManager()
-	server := rlpa.NewServer(manager)
+	manager := cloud.NewManager()
+	server := cloud.NewServer(manager)
 
 	go func() {
 		if err := server.Listen(config.C.ListenAddress); err != nil {

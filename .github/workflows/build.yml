@@ -35,12 +35,12 @@ jobs:
       - name: Build for ${{ matrix.target.name }}
         run: |
           VERSION=$(git describe --always --tags --match "v*" --dirty="-dev")
-          CGO_ENABLED=0 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-rlpa-server-${{ matrix.target.os }}-${{ matrix.target.arch }}
+          CGO_ENABLED=0 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
       - name: Upload ${{ matrix.target.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: estkme-rlpa-server-${{ matrix.target.os }}-${{ matrix.target.arch }}
-          path: estkme-rlpa-server-${{ matrix.target.os }}-${{ matrix.target.arch }}
+          name: estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
+          path: estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
 
   release:
     name: Release

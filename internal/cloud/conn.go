@@ -1,4 +1,4 @@
-package rlpa
+package cloud
 
 import (
 	"encoding/binary"
@@ -8,7 +8,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/damonto/estkme-rlpa-server/internal/driver"
+	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
 type Handler = func(conn *Conn, data []byte) error

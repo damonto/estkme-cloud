@@ -1,10 +1,10 @@
-package rlpa
+package cloud
 
 import (
 	"bytes"
 	"errors"
 
-	"github.com/damonto/estkme-rlpa-server/internal/lpac"
+	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
 const (
