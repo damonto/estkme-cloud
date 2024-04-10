@@ -101,7 +101,7 @@ You can also run the server using Docker. You can use the following command to r
 ```bash
 docker run -d --name estkme-cloud -p 1888:1888 damonto/estkme-cloud:latest
 # or use the GitHub Container Registry
-docker run -d --name estkme-cloud -p 1888:1888 -v ghcr.io/damonto/estkme-cloud:latest
+docker run -d --name estkme-cloud -p 1888:1888 ghcr.io/damonto/estkme-cloud:latest
 ```
 
 ### Usage
