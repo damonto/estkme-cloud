@@ -39,6 +39,6 @@ func (a *apdu) Transmit(command string) (string, error) {
 	return hex.EncodeToString(<-a.receiver), nil
 }
 
-func (a *apdu) Receiver() chan []byte {
+func (a *apdu) Receive() chan []byte {
 	return a.receiver
 }

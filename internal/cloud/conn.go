@@ -58,13 +58,13 @@ func (c *Conn) registerHandlers() {
 }
 
 func (c *Conn) Handle(tag byte, data []byte) {
+	if tag == TagAPDU {
+		c.APDU.Receive() <- data
+	}
 	if handler, ok := c.handlers[tag]; ok {
 		if err := handler(c, data); err != nil {
 			slog.Error("error handling tag", "tag", tag, "data", data, "error", err)
 		}
-	}
-	if tag == TagAPDU {
-		c.APDU.Receiver() <- data
 	}
 }
 
