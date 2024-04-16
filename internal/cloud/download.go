@@ -41,7 +41,7 @@ func downloadProfile(conn *Conn, data []byte) error {
 		}
 	}
 
-	return lpac.NewCmder(conn.APDU).DownloadProfile(lpac.ActivationCode{
+	return lpac.NewCmder(conn.APDU).ProfileDownload(lpac.ActivationCode{
 		SMDP:             string(parts[1]),
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,

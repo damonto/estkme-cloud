@@ -5,17 +5,17 @@ import "encoding/json"
 type Progress = func(current string) error
 
 type CommandOutput struct {
-	Type    string          `json:"type"`
+	Type    Command         `json:"type"`
 	Payload json.RawMessage `json:"payload"`
 }
 
 type CommandAPDUPayload struct {
-	Func  string `json:"func"`
-	Param string `json:"param"`
+	Func  Command `json:"func"`
+	Param string  `json:"param"`
 }
 
 type CommandAPDUInput struct {
-	Type    string                  `json:"type"`
+	Type    Command                 `json:"type"`
 	Payload CommandAPDUInputPayload `json:"payload"`
 }
 

@@ -19,7 +19,7 @@ type Conn struct {
 	APDU     driver.APDU
 	lock     sync.Mutex
 	isClosed bool
-	handlers map[byte]Handler
+	handlers map[Tag]Handler
 }
 
 var ErrorTagUnknown = errors.New("unknown tag")
@@ -32,7 +32,7 @@ func NewConn(id string, conn *net.TCPConn) *Conn {
 }
 
 func (c *Conn) registerHandlers() {
-	c.handlers = map[byte]Handler{
+	c.handlers = map[Tag]Handler{
 		TagManagement: func(conn *Conn, data []byte) error {
 			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 		},
@@ -57,7 +57,7 @@ func (c *Conn) registerHandlers() {
 	}
 }
 
-func (c *Conn) Handle(tag byte, data []byte) {
+func (c *Conn) Handle(tag Tag, data []byte) {
 	if tag == TagAPDU {
 		c.APDU.Receive() <- data
 	}
@@ -68,7 +68,7 @@ func (c *Conn) Handle(tag byte, data []byte) {
 	}
 }
 
-func (c *Conn) Send(tag byte, data []byte) error {
+func (c *Conn) Send(tag Tag, data []byte) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	packet := c.pack(tag, data)
@@ -81,13 +81,13 @@ func (c *Conn) Send(tag byte, data []byte) error {
 	return err
 }
 
-func (c *Conn) Read() (byte, []byte, error) {
+func (c *Conn) Read() (Tag, []byte, error) {
 	header := make([]byte, 3)
 	_, err := c.Conn.Read(header)
 	if err != nil {
 		return 0, nil, err
 	}
-	if !c.isKnownTag(header[0]) {
+	if !c.isKnownTag(Tag(header[0])) {
 		return 0, nil, ErrorTagUnknown
 	}
 
@@ -104,10 +104,10 @@ func (c *Conn) Read() (byte, []byte, error) {
 		}
 		len += n
 	}
-	return header[0], data, nil
+	return Tag(header[0]), data, nil
 }
 
-func (c *Conn) isKnownTag(tag byte) bool {
+func (c *Conn) isKnownTag(tag Tag) bool {
 	for _, knownTag := range KnownTags {
 		if tag == knownTag {
 			return true
@@ -116,9 +116,9 @@ func (c *Conn) isKnownTag(tag byte) bool {
 	return false
 }
 
-func (c *Conn) pack(tag byte, data []byte) []byte {
+func (c *Conn) pack(tag Tag, data []byte) []byte {
 	var packet = make([]byte, len(data)+3)
-	packet[0] = tag
+	packet[0] = byte(tag)
 	binary.LittleEndian.PutUint16(packet[1:], uint16(len(data)))
 	copy(packet[3:], data)
 	return packet

@@ -54,7 +54,7 @@ func (c *Cmder) ProfileInfo(ICCID string) (Profile, error) {
 	return Profile{}, nil
 }
 
-func (c *Cmder) DownloadProfile(activationCode ActivationCode, progress Progress) error {
+func (c *Cmder) ProfileDownload(activationCode ActivationCode, progress Progress) error {
 	arguments := []string{"profile", "download"}
 	if activationCode.SMDP != "" {
 		arguments = append(arguments, "-s", activationCode.SMDP)
@@ -110,7 +110,7 @@ func (c *Cmder) sendNotificationAfterDownload(action func() error) error {
 	return nil
 }
 
-func (c *Cmder) DeleteProfile(ICCID string) error {
+func (c *Cmder) ProfileDelete(ICCID string) error {
 	if err := c.Run([]string{"profile", "delete", ICCID}, nil, nil); err != nil {
 		return err
 	}
@@ -134,11 +134,11 @@ func (c *Cmder) DeleteProfile(ICCID string) error {
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
 
-func (c *Cmder) SetNickname(ICCID string, nickname string) error {
+func (c *Cmder) ProfileSetNickname(ICCID string, nickname string) error {
 	return c.Run([]string{"profile", "nickname", ICCID, nickname}, nil, nil)
 }
 
-func (c *Cmder) Discovery() ([]DiscoveryResponse, error) {
+func (c *Cmder) ProfileDiscovery() ([]DiscoveryResponse, error) {
 	var response []DiscoveryResponse
 	if err := c.Run([]string{"profile", "discovery"}, &response, nil); err != nil {
 		return response, err

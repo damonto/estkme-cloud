@@ -110,7 +110,7 @@ func (c *Cmder) handleProgress(payload json.RawMessage, progress Progress) error
 	if err := json.Unmarshal(payload, &progressPayload); err != nil {
 		return err
 	}
-	if humanReadableMessage, ok := ProgressMessages[progressPayload.Message]; ok {
+	if humanReadableMessage, ok := Steps[progressPayload.Message]; ok {
 		return progress(humanReadableMessage)
 	}
 	return progress(progressPayload.Message)
