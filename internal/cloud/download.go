@@ -12,15 +12,22 @@ const (
 	ErrRequireConfirmationCode = "confirmation code is required\n"
 )
 
+// GSM 7-bit encoding, see https://en.wikipedia.org/wiki/GSM_03.38
+var (
+	GSMNumberSign = []byte{0x23}
+	GSMDollarSign = []byte{0x02}
+	GSMUnderscore = []byte{0x11}
+)
+
 func downloadProfile(conn *Conn, data []byte) error {
 	var imei string
 	var parts [][]byte
-	if bytes.Contains(data, []byte{0x23}) {
-		index := bytes.Index(data, []byte{0x23})
+	if bytes.Contains(data, GSMNumberSign) {
+		index := bytes.Index(data, GSMNumberSign)
 		imei = string(data[index+1:])
-		parts = bytes.Split(data[:index], []byte{0x02})
+		parts = bytes.Split(data[:index], GSMDollarSign)
 	} else {
-		parts = bytes.Split(data, []byte{0x02})
+		parts = bytes.Split(data, GSMDollarSign)
 	}
 
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
@@ -36,8 +43,8 @@ func downloadProfile(conn *Conn, data []byte) error {
 	if len(parts) == 5 {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
-			parts[4] = bytes.Replace([]byte("<confirmation_code>"), []byte("_"), []byte{0x11}, 1)
-			return errors.New(ErrRequireConfirmationCode + string(bytes.Join(parts, []byte{0x02})))
+			parts[4] = bytes.Replace([]byte("<confirmation_code>"), []byte("_"), GSMUnderscore, 1)
+			return errors.New(ErrRequireConfirmationCode + string(bytes.Join(parts, GSMDollarSign)))
 		}
 	}
 
