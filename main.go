@@ -20,12 +20,19 @@ func init() {
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
 	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0", "lpac version")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
+	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
 	flag.Parse()
 }
 
 func main() {
 	slog.Info("eSTK.me cloud enhance server", "version", Version)
 	config.C.LoadEnv()
+
+	if config.C.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Warn("verbose mode is enabled, this will print out sensitive information")
+	}
+
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
 		os.Exit(1)

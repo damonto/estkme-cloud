@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -46,6 +47,7 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		output := scanner.Text()
+		slog.Debug("lpac output", "output", output)
 		if err := c.handleOutput(output, stdin, dst, progress); err != nil {
 			return err
 		}

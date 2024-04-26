@@ -84,9 +84,9 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 			return
 		}
 		if tag == TagAPDU {
-			slog.Info("received data from", "id", id, "tag", tag, "data", hex.EncodeToString(data))
+			slog.Debug("received data from", "id", id, "tag", tag, "data", hex.EncodeToString(data))
 		} else {
-			slog.Info("received data from", "id", id, "tag", tag, "data", string(data))
+			slog.Debug("received data from", "id", id, "tag", tag, "data", string(data))
 		}
 		go conn.Handle(tag, data)
 	}

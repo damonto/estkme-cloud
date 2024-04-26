@@ -11,6 +11,7 @@ type Config struct {
 	LpacVersion   string
 	DataDir       string
 	DontDownload  bool
+	Verbose       bool
 }
 
 var C = &Config{}
@@ -41,5 +42,8 @@ func (c *Config) LoadEnv() {
 	}
 	if os.Getenv("ESTKME_CLOUD_DONT_DOWNLOAD") != "" {
 		c.DontDownload = true
+	}
+	if os.Getenv("ESTKME_CLOUD_VERBOSE") != "" {
+		c.Verbose = true
 	}
 }
