@@ -60,6 +60,8 @@ Usage of estkme-cloud:
         lpac version (default "v2.0.0-beta.1")
   -dont-download
         don't download lpac
+  -verbose
+        verbose mode
 ```
 
 If you wish to run the program in the background, you can utilize the systemctl command. Here is an example of how to achieve this:
