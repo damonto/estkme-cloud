@@ -18,7 +18,7 @@ func init() {
 	cwd, _ := os.Getwd()
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
-	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.0", "lpac version")
+	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.1", "lpac version")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
 	flag.Parse()
