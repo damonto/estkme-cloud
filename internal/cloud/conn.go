@@ -67,7 +67,6 @@ func (c *Conn) RegisterHandler(tag Tag, handler Handler) error {
 	if !c.isKnownTag(tag) {
 		return ErrTagUnknown
 	}
-
 	c.handlers[tag] = handler
 	return nil
 }
