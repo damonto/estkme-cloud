@@ -22,39 +22,54 @@ type Conn struct {
 	handlers map[Tag]Handler
 }
 
-var ErrorTagUnknown = errors.New("unknown tag")
+var (
+	ErrTagUnknown = errors.New("unknown tag")
+)
 
 func NewConn(id string, conn *net.TCPConn) *Conn {
-	c := &Conn{Id: id, Conn: conn}
+	c := &Conn{
+		Id:       id,
+		Conn:     conn,
+		handlers: make(map[Tag]Handler, len(KnownTags)),
+	}
 	c.APDU = NewAPDU(c)
 	c.registerHandlers()
 	return c
 }
 
 func (c *Conn) registerHandlers() {
-	c.handlers = map[Tag]Handler{
-		TagManagement: func(conn *Conn, data []byte) error {
-			return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
-		},
-		TagProcessNotification: func(conn *Conn, data []byte) error {
-			defer conn.Close()
-			conn.Send(TagMessageBox, []byte("Processing notifications..."))
-			if err := processNotification(conn); err != nil {
-				slog.Error("error processing notification", "error", err)
-				return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
-			}
-			return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
-		},
-		TagDownloadProfile: func(conn *Conn, data []byte) error {
-			defer conn.Close()
-			conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-			if err := downloadProfile(conn, data); err != nil {
-				slog.Error("error downloading profile", "error", err)
-				return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
-			}
-			return conn.Send(TagMessageBox, []byte("Your profile has been downloaded successfully"))
-		},
+	c.RegisterHandler(TagManagement, func(conn *Conn, data []byte) error {
+		return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
+	})
+
+	c.RegisterHandler(TagProcessNotification, func(conn *Conn, data []byte) error {
+		defer conn.Close()
+		conn.Send(TagMessageBox, []byte("Processing notifications..."))
+		if err := processNotification(conn); err != nil {
+			slog.Error("error processing notification", "error", err)
+			return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
+		}
+		return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
+	})
+
+	c.RegisterHandler(TagDownloadProfile, func(conn *Conn, data []byte) error {
+		defer conn.Close()
+		conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
+		if err := downloadProfile(conn, data); err != nil {
+			slog.Error("error downloading profile", "error", err)
+			return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
+		}
+		return conn.Send(TagMessageBox, []byte("Your profile has been downloaded successfully"))
+	})
+}
+
+func (c *Conn) RegisterHandler(tag Tag, handler Handler) error {
+	if !c.isKnownTag(tag) {
+		return ErrTagUnknown
 	}
+
+	c.handlers[tag] = handler
+	return nil
 }
 
 func (c *Conn) Handle(tag Tag, data []byte) {
@@ -88,7 +103,7 @@ func (c *Conn) Read() (Tag, []byte, error) {
 		return 0, nil, err
 	}
 	if !c.isKnownTag(Tag(header[0])) {
-		return 0, nil, ErrorTagUnknown
+		return 0, nil, ErrTagUnknown
 	}
 
 	length := binary.LittleEndian.Uint16(header[1:3])

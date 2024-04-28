@@ -72,7 +72,7 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 			if err == io.EOF || errors.Is(err, net.ErrClosed) || os.IsTimeout(err) {
 				return
 			}
-			if !errors.Is(err, ErrorTagUnknown) {
+			if !errors.Is(err, ErrTagUnknown) {
 				slog.Error("error reading from connection", "error", err)
 			}
 			continue
