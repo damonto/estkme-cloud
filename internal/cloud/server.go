@@ -48,7 +48,6 @@ func (s *server) Listen(address string) error {
 
 		conn.SetKeepAlive(true)
 		conn.SetKeepAlivePeriod(30 * time.Second)
-		// TODO: Delete this line when new eSTK.me firmware is released. (which will support the heartbeat tag)
 		conn.SetReadDeadline(time.Now().Add(2 * time.Minute))
 
 		s.wg.Add(1)
