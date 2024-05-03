@@ -102,7 +102,7 @@ func (c *Cmder) sendNotificationAfterDownloading(action func() error) error {
 		}
 	}
 	if installationNotificationSeqNumber > 0 {
-		return c.NotificationProcess(installationNotificationSeqNumber, false, nil)
+		return c.NotificationProcess(installationNotificationSeqNumber, true, nil)
 	}
 	return nil
 }
