@@ -2,7 +2,6 @@ package lpac
 
 import (
 	"errors"
-	"math"
 )
 
 type ActivationCode struct {
@@ -69,18 +68,17 @@ func (c *Cmder) ProfileDownload(activationCode ActivationCode, progress Progress
 		arguments = append(arguments, "-i", activationCode.IMEI)
 	}
 
-	return c.sendNotificationAfterDownload(func() error {
+	return c.sendNotificationAfterDownloading(func() error {
 		return c.Run(arguments, nil, progress)
 	})
 }
 
-func (c *Cmder) sendNotificationAfterDownload(action func() error) error {
+func (c *Cmder) sendNotificationAfterDownloading(action func() error) error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err
 	}
-
-	lastSeqNumber := 0
+	var lastSeqNumber int
 	for _, notification := range notifications {
 		if notification.SeqNumber > lastSeqNumber {
 			lastSeqNumber = notification.SeqNumber
@@ -96,15 +94,14 @@ func (c *Cmder) sendNotificationAfterDownload(action func() error) error {
 		return err
 	}
 
-	// Find the notification with the highest sequence number
-	installationNotificationSeqNumber := math.MaxInt
+	var installationNotificationSeqNumber int
 	for _, notification := range notifications {
-		if notification.SeqNumber > lastSeqNumber && notification.SeqNumber < installationNotificationSeqNumber {
+		if notification.SeqNumber > lastSeqNumber && notification.ProfileManagementOperation == NotificationProfileManagementOperationInstall {
 			installationNotificationSeqNumber = notification.SeqNumber
 			break
 		}
 	}
-	if installationNotificationSeqNumber != math.MaxInt {
+	if installationNotificationSeqNumber > 0 {
 		return c.NotificationProcess(installationNotificationSeqNumber, false, nil)
 	}
 	return nil
@@ -119,16 +116,14 @@ func (c *Cmder) ProfileDelete(ICCID string) error {
 	if err != nil {
 		return err
 	}
-
-	deletionNotificationSeqNumber := math.MaxInt
+	var deletionNotificationSeqNumber int
 	for _, notification := range notifications {
-		if notification.ICCID == ICCID && notification.ProfileManagementOperation == "delete" {
-			if notification.SeqNumber > deletionNotificationSeqNumber {
-				deletionNotificationSeqNumber = notification.SeqNumber
-			}
+		if notification.ICCID == ICCID && notification.ProfileManagementOperation == NotificationProfileManagementOperationDelete {
+			deletionNotificationSeqNumber = notification.SeqNumber
+			break
 		}
 	}
-	if deletionNotificationSeqNumber == math.MaxInt {
+	if deletionNotificationSeqNumber > 0 {
 		return errors.New(ErrDeletionNotificationNotFound)
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
