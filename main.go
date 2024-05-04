@@ -24,10 +24,8 @@ func init() {
 	flag.Parse()
 }
 
-func main() {
-	slog.Info("eSTK.me cloud enhance server", "version", Version)
+func initApp() {
 	config.C.LoadEnv()
-
 	if config.C.Verbose {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Warn("verbose mode is enabled, this will print out sensitive information")
@@ -44,6 +42,11 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
+
+func main() {
+	slog.Info("eSTK.me cloud enhance server", "version", Version)
+	initApp()
 
 	manager := cloud.NewManager()
 	server := cloud.NewServer(manager)
