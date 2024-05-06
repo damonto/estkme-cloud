@@ -1,0 +1,30 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [v*]
+
+env:
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  SSH_SERVERS: ${{ secrets.SSH_SERVERS }}
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./scripts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Make the script files executable
+        run: chmod +x gh-deploy.sh ssh-deploy.sh
+      - name: Deploy the latest version
+        run: ./gh-deploy.sh
+
+
