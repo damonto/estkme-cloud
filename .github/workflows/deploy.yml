@@ -9,10 +9,6 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./scripts
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,19 +23,22 @@ jobs:
             echo "SSH_PRIVATE_KEY is not set"
             exit 1
           fi
-          echo "$SSH_PRIVATE_KEY"
 
           if [ -z "$SSH_SERVER_LIST" ]; then
             echo "SSH_SERVER_LIST is not set"
             exit 1
           fi
 
+          # Save the private key to a file
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
           # Split SSH_SERVER_LIST by comma
           IFS=',' read -ra SERVER_LIST <<< "$SSH_SERVER_LIST"
           for server in "${SERVER_LIST[@]}"; do
-            echo "$SSH_PRIVATE_KEY" | ssh -i /dev/stdin -o StrictHostKeyChecking=no "$server" "mkdir -p /opt/estkme-cloud"
-            echo "$SSH_PRIVATE_KEY" | scp -i /dev/stdin -r ./deploy.sh $server:/opt/estkme-cloud
-            echo "$SSH_PRIVATE_KEY" | ssh -i /dev/stdin -o StrictHostKeyChecking=no  $server "/opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
+            ssh -i /.ssh/id_ed25519 -o StrictHostKeyChecking=no "$server" "mkdir -p /opt/estkme-cloud"
+            scp -i /.ssh/id_ed25519 -r scripts/deploy.sh $server:/opt/estkme-cloud
+            ssh -i /.ssh/id_ed25519 -o StrictHostKeyChecking=no  $server "/opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
           done
 
 
