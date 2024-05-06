@@ -7,7 +7,6 @@ import (
 	"io"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/damonto/estkme-cloud/internal/config"
 	"github.com/damonto/estkme-cloud/internal/driver"
@@ -24,13 +23,10 @@ func NewCmder(APDU driver.APDU) *Cmder {
 func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	c.APDU.Lock()
 	defer c.APDU.Unlock()
-	cmd := exec.Command(c.binName(), arguments...)
+	cmd := exec.Command(filepath.Join(config.C.DataDir, lpacPath()), arguments...)
 	cmd.Dir = config.C.DataDir
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
-	// Windows requires libcurl.dll to be in the same directory as the binary
-	if runtime.GOOS == "windows" {
-		cmd.Env = append(cmd.Env, "LIBCURL="+filepath.Join(config.C.DataDir, "libcurl.dll"))
-	}
+	configureSystemOptions(cmd)
 
 	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
 	stdout, _ := cmd.StdoutPipe()
@@ -51,17 +47,6 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 		}
 	}
 	return cmd.Wait()
-}
-
-func (c *Cmder) binName() string {
-	var binName string
-	switch runtime.GOOS {
-	case "windows":
-		binName = "lpac.exe"
-	default:
-		binName = "lpac"
-	}
-	return filepath.Join(config.C.DataDir, binName)
 }
 
 func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
