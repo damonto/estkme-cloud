@@ -5,10 +5,6 @@ on:
   push:
     tags: [v*]
 
-env:
-  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-  SSH_SERVERS: ${{ secrets.SSH_SERVERS }}
-
 jobs:
   deploy:
     name: Deploy
@@ -25,6 +21,27 @@ jobs:
       - name: Make the script files executable
         run: chmod +x gh-deploy.sh deploy.sh
       - name: Deploy the latest version
-        run: ./gh-deploy.sh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_SERVERS: ${{ secrets.SSH_SERVERS }}
+        run: |
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "SSH_PRIVATE_KEY is not set"
+            exit 1
+          fi
+
+          if [ -z "$SSH_SERVER_LIST" ]; then
+            echo "SSH_SERVER_LIST is not set"
+            exit 1
+          fi
+
+          # Split SSH_SERVER_LIST by comma
+          IFS=',' read -ra SERVER_LIST <<< "$SSH_SERVER_LIST"
+          for server in "${SERVER_LIST[@]}"; do
+            echo "$SSH_PRIVATE_KEY" | ssh -i /dev/stdin -o StrictHostKeyChecking=no "$server" "mkdir -p /opt/estkme-cloud"
+            echo "$SSH_PRIVATE_KEY" | scp -i /dev/stdin -r ./deploy.sh $server:/opt/estkme-cloud
+            echo "$SSH_PRIVATE_KEY" | ssh -i /dev/stdin -o StrictHostKeyChecking=no  $server "/opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
+          done
+
 
 

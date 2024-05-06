@@ -12,7 +12,7 @@ if [ ! -f /etc/debian_version ]; then
 fi
 
 # Install dependencies
-apt-get update -y && apt-get install -y unzip wget cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl
+apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl
 
 # Get the latest release version
 get_latest_release() {
@@ -23,7 +23,7 @@ get_latest_release() {
 }
 
 DST_DIR="/opt/estkme-cloud"
-BUILD_DIR="/tmp/estkme-cloud-build"
+BUILD_DIR=$(mktemp -d)
 
 LPAC_VERSION=$(get_latest_release "estkme-group/lpac")
 if [ -z "$LPAC_VERSION" ]; then
@@ -67,7 +67,7 @@ WantedBy=multi-user.target
 
 # Download the source code
 mkdir -p $BUILD_DIR
-wget -O $BUILD_DIR/lpac.zip $LPAC_SOURCE_CODE
+curl -L -o $BUILD_DIR/lpac.zip $LPAC_SOURCE_CODE
 unzip -o $BUILD_DIR/lpac.zip -d $BUILD_DIR
 cd $BUILD_DIR/lpac-$LPAC_VERSION
 mkdir -p build && cd build
@@ -85,7 +85,7 @@ cp -rf $BUILD_DIR/lpac-$LPAC_VERSION/build/output/lpac $DST_DIR/data
 chmod +x $DST_DIR/data/lpac
 
 # Download eSTK.me Cloud Enhance Server
-wget -O $DST_DIR/estkme-cloud $ESTKME_CLOUD_BINARY_URL
+curl -L -o $DST_DIR/estkme-cloud $ESTKME_CLOUD_BINARY_URL
 chmod +x $DST_DIR/estkme-cloud
 
 # Create the systemd unit file
