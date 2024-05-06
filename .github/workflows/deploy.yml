@@ -20,8 +20,8 @@ jobs:
           fetch-depth: 0
       - name: Deploy the latest version
         env:
+          SSH_SERVER_LIST: ${{ vars.SSH_SERVER_LIST }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_SERVER_LIST: ${{ secrets.SSH_SERVER_LIST }}
         run: |
           if [ -z "$SSH_PRIVATE_KEY" ]; then
             echo "SSH_PRIVATE_KEY is not set"
