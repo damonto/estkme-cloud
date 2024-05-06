@@ -27,6 +27,7 @@ jobs:
             echo "SSH_PRIVATE_KEY is not set"
             exit 1
           fi
+          echo "$SSH_PRIVATE_KEY"
 
           if [ -z "$SSH_SERVER_LIST" ]; then
             echo "SSH_SERVER_LIST is not set"
