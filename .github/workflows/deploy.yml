@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Make the script files executable
-        run: chmod +x gh-deploy.sh ssh-deploy.sh
+        run: chmod +x gh-deploy.sh deploy.sh
       - name: Deploy the latest version
         run: ./gh-deploy.sh
 
