@@ -30,16 +30,16 @@ jobs:
           fi
 
           # Save the private key to a file
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          mkdir -p $HOME/.ssh
+          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
 
           # Split SSH_SERVER_LIST by comma
           IFS=',' read -ra SERVER_LIST <<< "$SSH_SERVER_LIST"
           for server in "${SERVER_LIST[@]}"; do
-            ssh -i /.ssh/id_ed25519 -o StrictHostKeyChecking=no "$server" "mkdir -p /opt/estkme-cloud"
-            scp -i /.ssh/id_ed25519 -r scripts/deploy.sh $server:/opt/estkme-cloud
-            ssh -i /.ssh/id_ed25519 -o StrictHostKeyChecking=no  $server "/opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
+            ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no "$server" "mkdir -p /opt/estkme-cloud"
+            scp -i $HOME/.ssh/id_ed25519 -r scripts/deploy.sh $server:/opt/estkme-cloud
+            ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no  $server "sudo /opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
           done
 
 

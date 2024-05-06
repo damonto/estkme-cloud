@@ -103,3 +103,5 @@ systemctl enable $SYSTEMED_UNIT
 
 # Clean up
 rm -rf $BUILD_DIR
+
+echo "eSTK.me Cloud Server deployed successfully!"
