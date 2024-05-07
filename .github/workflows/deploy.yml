@@ -6,8 +6,7 @@ on:
     workflows: ["Build and Release"]
     types:
       - completed
-    branches-ignore:
-      - '*'
+    branches: ['v*.*.*']
 
 jobs:
   prepare-matrix:
