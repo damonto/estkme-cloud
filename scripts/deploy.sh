@@ -34,7 +34,6 @@ fi
 
 function download_binary {
     LPAC_BINARY_URL="https://github.com/estkme-group/lpac/releases/download/v$LPAC_VERSION/lpac-linux-x86_64.zip"
-    echo "Downloading LPAC binary from $LPAC_BINARY_URL"
     curl -L -o $DST_DIR/lpac.zip $LPAC_BINARY_URL
     unzip -o $DST_DIR/lpac.zip -d $DST_DIR/data
     chmod +x $DST_DIR/data/lpac
