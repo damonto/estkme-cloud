@@ -42,6 +42,13 @@ func (c *Config) IsValid() error {
 	return nil
 }
 
+func (c *Config) GetAdvertising() string {
+	if c.Advertising != "" {
+		return "!! Advertising !! \n" + c.Advertising
+	}
+	return c.Advertising
+}
+
 func (c *Config) LoadEnv() {
 	if os.Getenv("ESTKME_CLOUD_LISTEN_ADDRESS") != "" {
 		c.ListenAddress = os.Getenv("ESTKME_CLOUD_LISTEN_ADDRESS")

@@ -13,6 +13,12 @@ if [ ! -f /etc/debian_version ]; then
     exit 1
 fi
 
+# Check systemctl or supervisorctl
+if [ ! -x "$(command -v systemctl)" ] && [ ! -x "$(command -v supervisorctl)" ]; then
+    echo "Please install systemd or supervisor"
+    exit 1
+fi
+
 # Install dependencies
 apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl
 
@@ -81,12 +87,13 @@ else
 fi
 ESTKME_CLOUD_BINARY_URL="https://github.com/damonto/estkme-cloud/releases/download/v$ESTKME_CLOUD_VERSION/$ESTKME_CLOUD_BINARY"
 
-SYSTEMED_UNIT="estkme-cloud.service"
-SYSTEMED_UNIT_PATH="/etc/systemd/system/$SYSTEMED_UNIT"
 START_CMD="/opt/estkme-cloud/estkme-cloud --data-dir=/opt/estkme-cloud/data --dont-download"
 if [ -n "$1" ]; then
     START_CMD="$START_CMD --advertising='$1'"
 fi
+
+SYSTEMED_UNIT="estkme-cloud.service"
+SYSTEMED_UNIT_PATH="/etc/systemd/system/$SYSTEMED_UNIT"
 SYSTEMED_FILE="
 [Unit]
 Description=eSTK.me Cloud Enhance Server
@@ -103,14 +110,38 @@ TimeoutStopSec=30s
 WantedBy=multi-user.target
 "
 
-if [ -x "$(command -v systemctl)" ]; then
-  if [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
-    systemctl stop $SYSTEMED_UNIT
-  fi
-else
-  if [ -n "$(pgrep -f "$START_CMD")" ]; then
-    pkill -f "$START_CMD"
-  fi
+SUPRVISOR_PROGRAM="estkme-cloud"
+SUPRVISOR_FILE="
+[supervisord]
+nodaemon=true
+logfile=/dev/null
+logfile_maxbytes=0
+pidfile=/tmp/supervisord.pid
+stdout_logfile=/dev/stdout
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[unix_http_server]
+file=/tmp/supervisor.sock
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock
+
+[program:$SUPRVISOR_PROGRAM]
+command="$START_CMD"
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stderr_logfile=/dev/stderr
+"
+
+if [ -x "$(command -v systemctl)" ] && [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
+  echo "Stopping eSTK.me Cloud Enhance Server in systemd"
+  systemctl stop $SYSTEMED_UNIT
+elif [ -x "$(command -v supervisorctl)" ] &&  [ "$(supervisorctl status $SUPRVISOR_PROGRAM | awk '{print $2}')" == "RUNNING" ]; then
+  echo "Stopping eSTK.me Cloud Enhance Server in supervisor"
+  supervisorctl stop $SUPRVISOR_PROGRAM
 fi
 
 # Download eSTK.me Cloud Enhance Server
@@ -125,8 +156,11 @@ if [ -x "$(command -v systemctl)" ]; then
     systemctl enable $SYSTEMED_UNIT
     systemctl start $SYSTEMED_UNIT
 else
-    echo "Deploying eSTK.me Cloud Enhance Server to background"
-    nohup $START_CMD > /dev/null 2>&1 &
+    echo "Deploying eSTK.me Cloud Enhance Server to supervisor"
+    echo "$SUPRVISOR_FILE" > /etc/supervisor/supervisord.conf
+    supervisorctl reread
+    supervisorctl update
+    supervisorctl reload
 fi
 
 echo "eSTK.me Cloud Server deployed successfully!"

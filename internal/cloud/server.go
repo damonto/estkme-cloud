@@ -69,7 +69,7 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	defer s.manager.Remove(id)
 
 	if config.C.Advertising != "" {
-		conn.Send(TagMessageBox, []byte(config.C.Advertising))
+		conn.Send(TagMessageBox, []byte(config.C.GetAdvertising()))
 	}
 
 	for {

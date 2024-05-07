@@ -1,0 +1,44 @@
+FROM debian:bookworm-slim
+
+ENV SSH_PUBLIC_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAYtTh3Z4dllW6CjUXb5hzRR+/akTd4Xp8Q+gH//uSQI"
+
+RUN set -xe \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends supervisor openssh-server htop \
+  && apt-get clean \
+  && mkdir -p var/run/sshd \
+  && sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config \
+  && sed -i 's/^#\(PubkeyAuthentication\) .*/\1 yes/' /etc/ssh/sshd_config \
+  && mkdir -p /root/.ssh \
+  && echo "$SSH_PUBLIC_KEY" > /root/.ssh/authorized_keys \
+  && chmod 600 /root/.ssh/authorized_keys \
+  && mkdir -p /var/log/supervisor \
+  && mkdir -p /etc/supervisor/conf.d \
+  && cat > /etc/supervisor/supervisord.conf <<'_EOF'
+[supervisord]
+nodaemon=true
+logfile=/dev/null
+logfile_maxbytes=0
+pidfile=/tmp/supervisord.pid
+stdout_logfile=/dev/stdout
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[unix_http_server]
+file=/tmp/supervisor.sock
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock
+
+[program:estkme-cloud]
+command="echo 'Hello, World!' && sleep 3600"
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stderr_logfile=/dev/stderr
+_EOF
+
+EXPOSE 22 1888
+
+CMD ["sh", "-c", "/usr/sbin/sshd; /usr/bin/supervisord"]
