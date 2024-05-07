@@ -12,7 +12,6 @@ jobs:
   prepare-matrix:
     name: Prepare Matrix
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     outputs:
       servers: ${{ steps.create-matrix.outputs.matrix }}
     steps:
