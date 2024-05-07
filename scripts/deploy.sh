@@ -104,8 +104,14 @@ TimeoutStopSec=30s
 WantedBy=multi-user.target
 "
 
-if [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
-  systemctl stop $SYSTEMED_UNIT
+if [ -x "$(command -v systemctl)" ]; then
+  if [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
+    systemctl stop $SYSTEMED_UNIT
+  fi
+else
+  if [ -n "$(pgrep -f "$START_CMD")" ]; then
+    pkill -f "$START_CMD"
+  fi
 fi
 
 # Download eSTK.me Cloud Enhance Server
@@ -113,15 +119,15 @@ echo "Downloading eSTK.me Cloud Enhance Server version $ESTKME_CLOUD_VERSION"
 curl -L -o $DST_DIR/estkme-cloud $ESTKME_CLOUD_BINARY_URL
 chmod +x $DST_DIR/estkme-cloud
 
-# Create the systemd unit file
-if [ -f $SYSTEMED_UNIT_PATH ]; then
-    rm -f $SYSTEMED_UNIT_PATH
+if [ -x "$(command -v systemctl)" ]; then
+    echo "Deploying eSTK.me Cloud Enhance Server to systemd"
+    echo "$SYSTEMED_FILE" > $SYSTEMED_UNIT_PATH
+    systemctl daemon-reload
+    systemctl enable $SYSTEMED_UNIT
+    systemctl start $SYSTEMED_UNIT
+else
+    echo "Deploying eSTK.me Cloud Enhance Server to background"
+    nohup $START_CMD > /dev/null 2>&1 &
 fi
-echo "$SYSTEMED_FILE" > $SYSTEMED_UNIT_PATH
-
-# Start the service
-systemctl daemon-reload
-systemctl start $SYSTEMED_UNIT
-systemctl enable $SYSTEMED_UNIT
 
 echo "eSTK.me Cloud Server deployed successfully!"
