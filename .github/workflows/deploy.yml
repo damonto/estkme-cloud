@@ -6,8 +6,6 @@ on:
     workflows: ["Build and Release"]
     types:
       - completed
-  push:
-    tags: [v*]
 
 jobs:
   prepare-matrix:
@@ -24,6 +22,7 @@ jobs:
     name: Deploy to ${{ matrix.server.name }}
     runs-on: ubuntu-latest
     needs: [prepare-matrix]
+    if: github.event_name == 'push' && contains(github.event.ref, '/tags/')
     strategy:
       matrix:
         server: ${{ fromJSON(needs.prepare-matrix.outputs.servers) }}
