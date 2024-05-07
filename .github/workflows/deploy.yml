@@ -2,8 +2,12 @@ name: Deploy
 
 on:
   workflow_dispatch:
-  push:
-    tags: [v*]
+  workflow_run:
+    workflows: ["Build and Release"]
+    types:
+      - completed
+    push:
+      tags: [v*]
 
 jobs:
   prepare-matrix:
