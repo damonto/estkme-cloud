@@ -10,6 +10,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/damonto/estkme-cloud/internal/config"
 )
 
 type Server interface {
@@ -65,6 +67,10 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	s.manager.Add(id, conn)
 	defer conn.Close()
 	defer s.manager.Remove(id)
+
+	if config.C.Advertising != "" {
+		conn.Send(TagMessageBox, []byte(config.C.Advertising))
+	}
 
 	for {
 		tag, data, err := conn.Read()

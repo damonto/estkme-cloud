@@ -60,10 +60,6 @@ function build_from_source {
 
 echo "Downloading LPAC version $LPAC_VERSION"
 mkdir -p $DST_DIR/data
-if [ -f $DST_DIR/data/lpac ]; then
-    rm -f $DST_DIR/data/lpac
-fi
-
 if [ "$(uname -m)" == "x86_64" ]; then
     download_binary
 else
@@ -88,6 +84,10 @@ ESTKME_CLOUD_BINARY_URL="https://github.com/damonto/estkme-cloud/releases/downlo
 
 SYSTEMED_UNIT="estkme-cloud.service"
 SYSTEMED_UNIT_PATH="/etc/systemd/system/$SYSTEMED_UNIT"
+START_CMD="/opt/estkme-cloud/estkme-cloud --data-dir=/opt/estkme-cloud/data --dont-download"
+if [ -n "$1" ]; then
+    START_CMD="$START_CMD --advertising='$1'"
+fi
 SYSTEMED_FILE="
 [Unit]
 Description=eSTK.me Cloud Enhance Server
@@ -96,7 +96,7 @@ After=network.target
 [Service]
 Type=simple
 Restart=on-failure
-ExecStart=/opt/estkme-cloud/estkme-cloud --data-dir=/opt/estkme-cloud/data --dont-download
+ExecStart=$START_CMD
 RestartSec=10s
 TimeoutStopSec=30s
 
@@ -104,7 +104,6 @@ TimeoutStopSec=30s
 WantedBy=multi-user.target
 "
 
-# Copy the binary to the destination directory
 if [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
   systemctl stop $SYSTEMED_UNIT
 fi

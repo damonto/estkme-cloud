@@ -37,14 +37,10 @@ jobs:
             exit 1
           fi
 
-          # Save the private key to a file
           mkdir -p $HOME/.ssh
           echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
           chmod 600 $HOME/.ssh/id_ed25519
 
           ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ matrix.server.user }}@${{ matrix.server.host }} -p ${{ matrix.server.port }} "mkdir -p /opt/estkme-cloud"
           scp -i $HOME/.ssh/id_ed25519 -P ${{ matrix.server.port }} -r scripts/deploy.sh ${{ matrix.server.user }}@${{ matrix.server.host }}:/opt/estkme-cloud
-          ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ matrix.server.user }}@${{ matrix.server.host }} -p ${{ matrix.server.port }} "sudo /opt/estkme-cloud/deploy.sh && rm -f /opt/estkme-cloud/deploy.sh"
-
-
-
+          ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ matrix.server.user }}@${{ matrix.server.host }} -p ${{ matrix.server.port }} "sudo /opt/estkme-cloud/deploy.sh ${{ matrix.server.ad }} && rm -f /opt/estkme-cloud/deploy.sh"

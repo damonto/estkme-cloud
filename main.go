@@ -20,6 +20,7 @@ func init() {
 	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
 	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.1", "lpac version")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
+	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
 	flag.Parse()
 }
