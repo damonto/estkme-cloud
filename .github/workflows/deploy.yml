@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Create Matrix Variable
         id: create-matrix
-        run: echo "matrix=${{ vars.SSH_SERVER_LIST }}" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(echo "${{ vars.SSH_SERVER_LIST }}" | jq -cR .)" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy
