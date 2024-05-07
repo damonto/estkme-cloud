@@ -6,8 +6,8 @@ on:
     workflows: ["Build and Release"]
     types:
       - completed
-    push:
-      tags: [v*]
+  push:
+    tags: [v*]
 
 jobs:
   prepare-matrix:
