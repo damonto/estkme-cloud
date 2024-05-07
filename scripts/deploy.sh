@@ -18,27 +18,64 @@ apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-
 
 # Get the latest release version
 get_latest_release() {
-  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-    grep '"tag_name":' |                                            # Get tag line
-    sed -E 's/.*"([^"]+)".*/\1/' |                                    # Pluck JSON value
-    sed 's/v//'                                                      # Remove the "v" from the version number
+    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+      grep '"tag_name":' |                                            # Get tag line
+      sed -E 's/.*"([^"]+)".*/\1/' |                                    # Pluck JSON value
+      sed 's/v//'                                                      # Remove the "v" from the version number
 }
 
 DST_DIR="/opt/estkme-cloud"
-BUILD_DIR=$(mktemp -d)
 
 LPAC_VERSION=$(get_latest_release "estkme-group/lpac")
 if [ -z "$LPAC_VERSION" ]; then
     echo "Invalid LPAC version"
     exit 1
 fi
-LPAC_SOURCE_CODE="https://github.com/estkme-group/lpac/archive/refs/tags/v$LPAC_VERSION.zip"
+
+function download_binary {
+    LPAC_BINARY_URL="https://github.com/estkme-group/lpac/releases/download/v$LPAC_VERSION/lpac-linux-x86_64.zip"
+    echo "Downloading LPAC binary from $LPAC_BINARY_URL"
+    curl -L -o $DST_DIR/lpac.zip $LPAC_BINARY_URL
+    unzip -o $DST_DIR/lpac.zip -d $DST_DIR/data
+    chmod +x $DST_DIR/data/lpac
+    rm -f $DST_DIR/lpac.zip
+}
+
+function build_from_source {
+    BUILD_DIR=$(mktemp -d)
+    LPAC_SOURCE_CODE="https://github.com/estkme-group/lpac/archive/refs/tags/v$LPAC_VERSION.zip"
+    echo "Downloading LPAC source code from $LPAC_SOURCE_CODE"
+    # Download the source code
+    mkdir -p $BUILD_DIR
+    curl -L -o $BUILD_DIR/lpac.zip $LPAC_SOURCE_CODE
+    unzip -o $BUILD_DIR/lpac.zip -d $BUILD_DIR
+    cd $BUILD_DIR/lpac-$LPAC_VERSION
+    mkdir -p build && cd build
+    # Build the source code
+    cmake .. && make -j$(nproc)
+    cp -rf $BUILD_DIR/lpac-$LPAC_VERSION/build/output/lpac $DST_DIR/data
+    chmod +x $DST_DIR/data/lpac
+    rm -rf $BUILD_DIR
+}
+
+echo "Downloading LPAC version $LPAC_VERSION"
+mkdir -p $DST_DIR/data
+if [ -f $DST_DIR/data/lpac ]; then
+    rm -f $DST_DIR/data/lpac
+fi
+
+if [ "$(uname -m)" == "x86_64" ]; then
+    download_binary
+else
+    build_from_source
+fi
 
 ESTKME_CLOUD_VERSION=$(get_latest_release "damonto/estkme-cloud")
 if [ -z "$ESTKME_CLOUD_VERSION" ]; then
     echo "Invalid eSTK.me Cloud Enhance Server version"
     exit 1
 fi
+
 if [ "$(uname -m)" == "x86_64" ]; then
     ESTKME_CLOUD_BINARY="estkme-cloud-linux-amd64"
 elif [ "$(uname -m)" == "aarch64" ]; then
@@ -67,26 +104,13 @@ TimeoutStopSec=30s
 WantedBy=multi-user.target
 "
 
-# Download the source code
-mkdir -p $BUILD_DIR
-curl -L -o $BUILD_DIR/lpac.zip $LPAC_SOURCE_CODE
-unzip -o $BUILD_DIR/lpac.zip -d $BUILD_DIR
-cd $BUILD_DIR/lpac-$LPAC_VERSION
-mkdir -p build && cd build
-
-# Build the source code
-cmake .. && make -j$(nproc)
-
 # Copy the binary to the destination directory
 if [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
   systemctl stop $SYSTEMED_UNIT
 fi
 
-mkdir -p $DST_DIR/data
-cp -rf $BUILD_DIR/lpac-$LPAC_VERSION/build/output/lpac $DST_DIR/data
-chmod +x $DST_DIR/data/lpac
-
 # Download eSTK.me Cloud Enhance Server
+echo "Downloading eSTK.me Cloud Enhance Server version $ESTKME_CLOUD_VERSION"
 curl -L -o $DST_DIR/estkme-cloud $ESTKME_CLOUD_BINARY_URL
 chmod +x $DST_DIR/estkme-cloud
 
@@ -100,8 +124,5 @@ echo "$SYSTEMED_FILE" > $SYSTEMED_UNIT_PATH
 systemctl daemon-reload
 systemctl start $SYSTEMED_UNIT
 systemctl enable $SYSTEMED_UNIT
-
-# Clean up
-rm -rf $BUILD_DIR
 
 echo "eSTK.me Cloud Server deployed successfully!"
