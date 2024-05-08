@@ -24,10 +24,10 @@ apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-
 
 # Get the latest release version
 get_latest_release() {
-    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-      grep '"tag_name":' |                                            # Get tag line
-      sed -E 's/.*"([^"]+)".*/\1/' |                                    # Pluck JSON value
-      sed 's/v//'                                                      # Remove the "v" from the version number
+    curl --silent "https://api.github.com/repos/$1/releases/latest" |
+      grep '"tag_name":' |
+      sed -E 's/.*"([^"]+)".*/\1/' |
+      sed 's/v//'
 }
 
 DST_DIR="/opt/estkme-cloud"

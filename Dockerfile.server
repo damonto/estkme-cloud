@@ -4,7 +4,7 @@ ENV SSH_PUBLIC_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAYtTh3Z4dllW6CjUXb5hzRR
 
 RUN set -xe \
   && apt-get update \
-  && apt-get install -y --no-install-recommends supervisor openssh-server htop \
+  && apt-get install -y --no-install-recommends supervisor openssh-server sudo \
   && apt-get clean \
   && mkdir -p var/run/sshd \
   && sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config \
