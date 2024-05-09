@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"os/exec"
 	"path/filepath"
 
@@ -13,20 +14,21 @@ import (
 )
 
 type Cmder struct {
-	APDU driver.APDU
+	APDU       driver.APDU
+	terminated chan struct{}
 }
 
 func NewCmder(APDU driver.APDU) *Cmder {
-	return &Cmder{APDU: APDU}
+	return &Cmder{APDU: APDU, terminated: make(chan struct{}, 1)}
 }
 
 func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	c.APDU.Lock()
 	defer c.APDU.Unlock()
-	cmd := exec.Command(filepath.Join(config.C.DataDir, lpacPath()), arguments...)
+	cmd := exec.Command(filepath.Join(config.C.DataDir, c.bin()), arguments...)
 	cmd.Dir = config.C.DataDir
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
-	configureSystemOptions(cmd)
+	c.forSystem(cmd)
 
 	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
 	stdout, _ := cmd.StdoutPipe()
@@ -38,6 +40,17 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 		return err
 	}
 
+	go func() {
+		<-c.terminated
+		c.interrupt(cmd)
+	}()
+
+	go func() {
+		if err := cmd.Wait(); err != nil && err.Error() != "signal: interrupt" {
+			slog.Error("lpac command error", "error", err)
+		}
+	}()
+
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
@@ -46,7 +59,11 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 			return err
 		}
 	}
-	return cmd.Wait()
+	return nil
+}
+
+func (c *Cmder) Terminate() {
+	c.terminated <- struct{}{}
 }
 
 func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
@@ -106,7 +123,6 @@ func (c *Cmder) handleAPDU(payload json.RawMessage, input io.WriteCloser) error 
 	if err := json.Unmarshal(payload, &command); err != nil {
 		return err
 	}
-
 	switch command.Func {
 	case CommandAPDUFuncTransmit:
 		received, err := c.APDU.Transmit(command.Param)

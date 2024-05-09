@@ -11,7 +11,7 @@ import (
 	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
-type Handler = func(conn *Conn, data []byte) error
+type Handler = func(conn *Conn, data []byte, closed chan struct{}) error
 
 type Conn struct {
 	Id       string
@@ -19,6 +19,7 @@ type Conn struct {
 	APDU     driver.APDU
 	lock     sync.Mutex
 	isClosed bool
+	closed   chan struct{}
 	handlers map[Tag]Handler
 }
 
@@ -31,6 +32,7 @@ func NewConn(id string, conn *net.TCPConn) *Conn {
 		Id:       id,
 		Conn:     conn,
 		handlers: make(map[Tag]Handler, len(KnownTags)),
+		closed:   make(chan struct{}, 1),
 	}
 	c.APDU = NewAPDU(c)
 	c.registerHandlers()
@@ -38,24 +40,24 @@ func NewConn(id string, conn *net.TCPConn) *Conn {
 }
 
 func (c *Conn) registerHandlers() {
-	c.RegisterHandler(TagManagement, func(conn *Conn, data []byte) error {
+	c.RegisterHandler(TagManagement, func(conn *Conn, data []byte, closed chan struct{}) error {
 		return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 	})
 
-	c.RegisterHandler(TagProcessNotification, func(conn *Conn, data []byte) error {
+	c.RegisterHandler(TagProcessNotification, func(conn *Conn, data []byte, closed chan struct{}) error {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Processing notifications..."))
-		if err := processNotification(conn); err != nil {
+		if err := processNotification(conn, closed); err != nil {
 			slog.Error("error processing notification", "error", err)
 			return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
 		}
 		return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
 	})
 
-	c.RegisterHandler(TagDownloadProfile, func(conn *Conn, data []byte) error {
+	c.RegisterHandler(TagDownloadProfile, func(conn *Conn, data []byte, closed chan struct{}) error {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-		if err := downloadProfile(conn, data); err != nil {
+		if err := downloadProfile(conn, data, closed); err != nil {
 			slog.Error("error downloading profile", "error", err)
 			return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
 		}
@@ -76,7 +78,7 @@ func (c *Conn) Handle(tag Tag, data []byte) {
 		c.APDU.Receive() <- data
 	}
 	if handler, ok := c.handlers[tag]; ok {
-		if err := handler(c, data); err != nil {
+		if err := handler(c, data, c.closed); err != nil {
 			slog.Error("error handling tag", "tag", tag, "data", data, "error", err)
 		}
 	}
@@ -143,6 +145,8 @@ func (c *Conn) Close() error {
 		return nil
 	}
 	c.isClosed = true
+	c.closed <- struct{}{}
+	defer close(c.closed)
 	defer c.Conn.Close()
 	return c.Send(TagClose, nil)
 }

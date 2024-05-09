@@ -3,13 +3,19 @@
 package lpac
 
 import (
+	"os"
 	"os/exec"
+	"syscall"
 )
 
-func configureSystemOptions(cmd *exec.Cmd) {
-	// Do nothing on non-Windows systems.
+func (c *Cmder) forSystem(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
 }
 
-func lpacPath() string {
+func (c *Cmder) bin() string {
 	return "lpac"
+}
+
+func (c *Cmder) interrupt(cmd *exec.Cmd) error {
+	return cmd.Process.Signal(os.Interrupt)
 }

@@ -7,12 +7,17 @@ import (
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
-func processNotification(conn *Conn) error {
+func processNotification(conn *Conn, closed chan struct{}) error {
 	cmder := lpac.NewCmder(conn.APDU)
 	notifications, err := cmder.NotificationList()
 	if err != nil {
 		return err
 	}
+
+	go func() {
+		<-closed
+		cmder.Terminate()
+	}()
 
 	for _, notification := range notifications {
 		if err := cmder.NotificationProcess(notification.SeqNumber, notification.ProfileManagementOperation != lpac.NotificationProfileManagementOperationDelete, nil); err != nil {

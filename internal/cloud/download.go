@@ -3,6 +3,7 @@ package cloud
 import (
 	"bytes"
 	"errors"
+	"log/slog"
 
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
@@ -19,7 +20,7 @@ var (
 	GSMUnderscore = []byte{0x11}
 )
 
-func downloadProfile(conn *Conn, data []byte) error {
+func downloadProfile(conn *Conn, data []byte, closed chan struct{}) error {
 	var imei string
 	var parts [][]byte
 	if bytes.Contains(data, GSMNumberSign) {
@@ -48,7 +49,14 @@ func downloadProfile(conn *Conn, data []byte) error {
 		}
 	}
 
-	return lpac.NewCmder(conn.APDU).ProfileDownload(lpac.ActivationCode{
+	cmder := lpac.NewCmder(conn.APDU)
+	go func() {
+		<-closed
+		slog.Debug("terminating profile download process due to connection closed")
+		cmder.Terminate()
+	}()
+
+	return cmder.ProfileDownload(lpac.ActivationCode{
 		SMDP:             string(parts[1]),
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,

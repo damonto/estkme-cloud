@@ -49,8 +49,8 @@ func (s *server) Listen(address string) error {
 		}
 
 		conn.SetKeepAlive(true)
-		conn.SetKeepAlivePeriod(30 * time.Second)
-		conn.SetReadDeadline(time.Now().Add(2 * time.Minute))
+		conn.SetKeepAlivePeriod(15 * time.Second)
+		conn.SetReadDeadline(time.Now().Add(30 * time.Second))
 
 		s.wg.Add(1)
 		go func() {
