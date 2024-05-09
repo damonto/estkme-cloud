@@ -117,7 +117,6 @@ nodaemon=true
 logfile=/dev/null
 logfile_maxbytes=0
 pidfile=/tmp/supervisord.pid
-stdout_logfile=/dev/stdout
 
 [rpcinterface:supervisor]
 supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
@@ -133,7 +132,9 @@ command="$START_CMD"
 autostart=true
 autorestart=true
 stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
 stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
 "
 
 if [ -x "$(command -v systemctl)" ] && [ "$(systemctl is-active $SYSTEMED_UNIT)" == "active" ]; then
