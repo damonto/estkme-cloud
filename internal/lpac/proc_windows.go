@@ -3,10 +3,8 @@
 package lpac
 
 import (
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"syscall"
 
 	"github.com/damonto/estkme-cloud/internal/config"
@@ -24,8 +22,5 @@ func (c *Cmder) bin() string {
 }
 
 func (c *Cmder) interrupt(cmd *exec.Cmd) error {
-	kill := exec.Command("TASKKILL", "/T", "/F", "/PID", strconv.Itoa(cmd.Process.Pid))
-	kill.Stderr = os.Stderr
-	kill.Stdout = os.Stdout
-	return kill.Run()
+	return cmd.Process.Kill()
 }
