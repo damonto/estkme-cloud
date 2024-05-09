@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"github.com/damonto/estkme-cloud/internal/cloud"
 	"github.com/damonto/estkme-cloud/internal/config"
@@ -27,6 +28,7 @@ func init() {
 
 func initApp() {
 	config.C.LoadEnv()
+
 	if config.C.Verbose {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Warn("verbose mode is enabled, this will print out sensitive information")
@@ -59,7 +61,7 @@ func main() {
 	}()
 
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 	<-quit
 	slog.Info("shutting down server")
 	if err := server.Shutdown(); err != nil {
