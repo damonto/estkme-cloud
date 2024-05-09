@@ -1,23 +1,19 @@
 package cloud
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
-func processNotification(conn *Conn, closed chan struct{}) error {
-	cmder := lpac.NewCmder(conn.APDU)
+func processNotification(ctx context.Context, conn *Conn) error {
+	cmder := lpac.NewCmder(ctx, conn.APDU)
 	notifications, err := cmder.NotificationList()
 	if err != nil {
 		return err
 	}
-
-	go func() {
-		<-closed
-		cmder.Terminate()
-	}()
 
 	for _, notification := range notifications {
 		if err := cmder.NotificationProcess(notification.SeqNumber, notification.ProfileManagementOperation != lpac.NotificationProfileManagementOperationDelete, nil); err != nil {

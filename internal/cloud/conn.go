@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"context"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
@@ -11,15 +12,15 @@ import (
 	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
-type Handler = func(conn *Conn, data []byte, closed chan struct{}) error
+type Handler = func(ctx context.Context, conn *Conn, data []byte) error
 
 type Conn struct {
 	Id       string
 	Conn     *net.TCPConn
 	APDU     driver.APDU
 	lock     sync.Mutex
-	isClosed bool
-	closed   chan struct{}
+	ctx      context.Context
+	cancel   context.CancelFunc
 	handlers map[Tag]Handler
 }
 
@@ -28,11 +29,14 @@ var (
 )
 
 func NewConn(id string, conn *net.TCPConn) *Conn {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	c := &Conn{
 		Id:       id,
 		Conn:     conn,
 		handlers: make(map[Tag]Handler, len(KnownTags)),
-		closed:   make(chan struct{}, 1),
+		ctx:      ctx,
+		cancel:   cancel,
 	}
 	c.APDU = NewAPDU(c)
 	c.registerHandlers()
@@ -40,24 +44,24 @@ func NewConn(id string, conn *net.TCPConn) *Conn {
 }
 
 func (c *Conn) registerHandlers() {
-	c.RegisterHandler(TagManagement, func(conn *Conn, data []byte, closed chan struct{}) error {
+	c.RegisterHandler(TagManagement, func(ctx context.Context, conn *Conn, data []byte) error {
 		return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 	})
 
-	c.RegisterHandler(TagProcessNotification, func(conn *Conn, data []byte, closed chan struct{}) error {
+	c.RegisterHandler(TagProcessNotification, func(ctx context.Context, conn *Conn, data []byte) error {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Processing notifications..."))
-		if err := processNotification(conn, closed); err != nil {
+		if err := processNotification(ctx, conn); err != nil {
 			slog.Error("error processing notification", "error", err)
 			return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
 		}
 		return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
 	})
 
-	c.RegisterHandler(TagDownloadProfile, func(conn *Conn, data []byte, closed chan struct{}) error {
+	c.RegisterHandler(TagDownloadProfile, func(ctx context.Context, conn *Conn, data []byte) error {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-		if err := downloadProfile(conn, data, closed); err != nil {
+		if err := downloadProfile(ctx, conn, data); err != nil {
 			slog.Error("error downloading profile", "error", err)
 			return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
 		}
@@ -78,7 +82,7 @@ func (c *Conn) Handle(tag Tag, data []byte) {
 		c.APDU.Receive() <- data
 	}
 	if handler, ok := c.handlers[tag]; ok {
-		if err := handler(c, data, c.closed); err != nil {
+		if err := handler(c.ctx, c, data); err != nil {
 			slog.Error("error handling tag", "tag", tag, "data", data, "error", err)
 		}
 	}
@@ -141,12 +145,12 @@ func (c *Conn) pack(tag Tag, data []byte) []byte {
 }
 
 func (c *Conn) Close() error {
-	if c.isClosed {
-		return nil
-	}
-	c.isClosed = true
-	c.closed <- struct{}{}
-	defer close(c.closed)
 	defer c.Conn.Close()
-	return c.Send(TagClose, nil)
+	defer c.cancel()
+	select {
+	case <-c.ctx.Done():
+	default:
+		return c.Send(TagClose, nil)
+	}
+	return nil
 }

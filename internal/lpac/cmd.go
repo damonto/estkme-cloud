@@ -2,6 +2,7 @@ package lpac
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -14,12 +15,12 @@ import (
 )
 
 type Cmder struct {
-	APDU       driver.APDU
-	terminated chan struct{}
+	APDU driver.APDU
+	ctx  context.Context
 }
 
-func NewCmder(APDU driver.APDU) *Cmder {
-	return &Cmder{APDU: APDU, terminated: make(chan struct{}, 1)}
+func NewCmder(ctx context.Context, APDU driver.APDU) *Cmder {
+	return &Cmder{ctx: ctx, APDU: APDU}
 }
 
 func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
@@ -41,7 +42,7 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	}
 
 	go func() {
-		<-c.terminated
+		<-c.ctx.Done()
 		c.interrupt(cmd)
 	}()
 
@@ -60,10 +61,6 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 		}
 	}
 	return nil
-}
-
-func (c *Cmder) Terminate() {
-	c.terminated <- struct{}{}
 }
 
 func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
