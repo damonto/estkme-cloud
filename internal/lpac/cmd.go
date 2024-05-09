@@ -15,8 +15,8 @@ import (
 )
 
 type Cmder struct {
-	APDU driver.APDU
 	ctx  context.Context
+	APDU driver.APDU
 }
 
 func NewCmder(ctx context.Context, APDU driver.APDU) *Cmder {
@@ -26,41 +26,38 @@ func NewCmder(ctx context.Context, APDU driver.APDU) *Cmder {
 func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	c.APDU.Lock()
 	defer c.APDU.Unlock()
-	cmd := exec.Command(filepath.Join(config.C.DataDir, c.bin()), arguments...)
+	cmd := exec.CommandContext(c.ctx, filepath.Join(config.C.DataDir, c.bin()), arguments...)
 	cmd.Dir = config.C.DataDir
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
 	c.forSystem(cmd)
 
 	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
 	stdout, _ := cmd.StdoutPipe()
-	defer stdout.Close()
 	stdin, _ := cmd.StdinPipe()
-	defer stdin.Close()
 
 	if err := cmd.Start(); err != nil {
 		return err
 	}
 
-	go func() {
-		<-c.ctx.Done()
-		c.interrupt(cmd)
-	}()
-
-	go func() {
-		if err := cmd.Wait(); err != nil && err.Error() != "signal: interrupt" {
-			slog.Error("lpac command error", "error", err)
-		}
-	}()
-
+	var outputErr error
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		output := scanner.Text()
-		if err := c.handleOutput(output, stdin, dst, progress); err != nil {
-			return err
+		if outputErr = c.handleOutput(output, stdin, dst, progress); outputErr != nil {
+			break
 		}
 	}
-	return nil
+	stdin.Close()
+	stdout.Close()
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		slog.Error("command wait error", "error", err)
+	}
+	return outputErr
 }
 
 func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {

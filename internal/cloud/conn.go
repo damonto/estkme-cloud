@@ -30,7 +30,6 @@ var (
 
 func NewConn(id string, conn *net.TCPConn) *Conn {
 	ctx, cancel := context.WithCancel(context.Background())
-
 	c := &Conn{
 		Id:       id,
 		Conn:     conn,
@@ -145,12 +144,15 @@ func (c *Conn) pack(tag Tag, data []byte) []byte {
 }
 
 func (c *Conn) Close() error {
-	defer c.Conn.Close()
-	defer c.cancel()
 	select {
 	case <-c.ctx.Done():
+		return nil
 	default:
-		return c.Send(TagClose, nil)
+		err := c.Send(TagClose, nil)
+		if err != nil {
+			return c.Conn.Close()
+		}
+		c.cancel()
+		return err
 	}
-	return nil
 }
