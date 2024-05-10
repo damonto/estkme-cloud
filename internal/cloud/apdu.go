@@ -42,8 +42,8 @@ func (a *apdu) Transmit(command string) (string, error) {
 	select {
 	case r := <-a.receiver:
 		return hex.EncodeToString(r), nil
-	case <-time.After(15 * time.Second): // If response is not received in 15 seconds, return card dead.
-		slog.Error("APDU response timeout", "command", command, "timeout", "15s", "response", APDUCardDead)
+	case <-time.After(5 * time.Second): // If response is not received in 5 seconds, return card dead.
+		slog.Debug("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCardDead)
 		return hex.EncodeToString([]byte(APDUCardDead)), nil
 	}
 }
