@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	APDUCardDead = "6FFF"
+	APDUCommunicateTimeout = "6600"
 )
 
 type apdu struct {
@@ -42,9 +42,9 @@ func (a *apdu) Transmit(command string) (string, error) {
 	select {
 	case r := <-a.receiver:
 		return hex.EncodeToString(r), nil
-	case <-time.After(5 * time.Second): // If response is not received in 5 seconds, return card dead.
-		slog.Debug("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCardDead)
-		return hex.EncodeToString([]byte(APDUCardDead)), nil
+	case <-time.After(5 * time.Second): // If response is not received in 5 seconds, return a timeout error.
+		slog.Debug("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCommunicateTimeout)
+		return hex.EncodeToString([]byte(APDUCommunicateTimeout)), nil
 	}
 }
 
