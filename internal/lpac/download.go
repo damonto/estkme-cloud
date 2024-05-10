@@ -2,8 +2,8 @@ package lpac
 
 import (
 	"archive/zip"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -13,18 +13,8 @@ import (
 )
 
 const (
-	GitHubAPI = "https://api.github.com/repos/estkme-group/lpac/releases"
+	DownloadUrl = "https://github.com/estkme-group/lpac/releases/download/%s/%s"
 )
-
-type GitHubRelease struct {
-	TagName string `json:"tag_name"`
-	Assets  []GitHubReleaseAsset
-}
-
-type GitHubReleaseAsset struct {
-	Name string `json:"name"`
-	URL  string `json:"browser_download_url"`
-}
 
 var packageNames = map[string]string{
 	"linux:amd64":   "lpac-linux-x86_64.zip",
@@ -43,23 +33,15 @@ func Download(dataDir, version string) error {
 		slog.Info("lpac already downloaded", "version", version)
 		return nil
 	}
-
-	url, err := getDownloadUrl(version)
-	if err != nil {
-		slog.Info("failed to get download url", "version", version)
-		return err
-	}
-
-	slog.Info("downloading lpac", "version", version, "url", url)
-	return download(url, dataDir, version)
+	return download(dataDir, version)
 }
 
-func download(url, dataDir, version string) error {
+func download(dataDir, version string) error {
 	if err := setupDstDir(dataDir); err != nil {
 		return err
 	}
 
-	path, err := downloadFile(url, dataDir)
+	path, err := downloadFile(fmt.Sprintf(DownloadUrl, version, packageNames[runtime.GOOS+":"+runtime.GOARCH]), dataDir)
 	if err != nil {
 		return err
 	}
@@ -71,6 +53,7 @@ func download(url, dataDir, version string) error {
 	if _, err := os.Create(filepath.Join(dataDir, version)); err != nil {
 		slog.Warn("failed to create version file", "version", version, "error", err)
 	}
+
 	if err := os.Remove(path); err != nil {
 		slog.Warn("failed to remove zip file", "path", path, "error", err)
 	}
@@ -127,28 +110,6 @@ func setupDstDir(dataDir string) error {
 		return err
 	}
 	return nil
-}
-
-func getDownloadUrl(version string) (string, error) {
-	resp, err := http.Get(GitHubAPI)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	var releases []GitHubRelease
-	if err := json.NewDecoder(resp.Body).Decode(&releases); err != nil {
-		return "", err
-	}
-	for _, release := range releases {
-		if release.TagName == version {
-			for _, asset := range release.Assets {
-				if asset.Name == packageNames[runtime.GOOS+":"+runtime.GOARCH] {
-					return asset.URL, nil
-				}
-			}
-		}
-	}
-	return "", errors.New("no download url found")
 }
 
 func shouldDownload(dataDir, version string) bool {
