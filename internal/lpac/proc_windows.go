@@ -20,7 +20,3 @@ func (c *Cmder) forSystem(cmd *exec.Cmd) {
 func (c *Cmder) bin() string {
 	return "lpac.exe"
 }
-
-func (c *Cmder) interrupt(cmd *exec.Cmd) error {
-	return cmd.Process.Kill()
-}

@@ -3,8 +3,13 @@ package cloud
 import (
 	"encoding/hex"
 	"sync"
+	"time"
 
 	"github.com/damonto/estkme-cloud/internal/driver"
+)
+
+const (
+	APDUCardDead = "6FFF"
 )
 
 type apdu struct {
@@ -32,7 +37,13 @@ func (a *apdu) Transmit(command string) (string, error) {
 	if err := a.conn.Send(TagAPDU, b); err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(<-a.receiver), nil
+
+	select {
+	case r := <-a.receiver:
+		return hex.EncodeToString(r), nil
+	case <-time.After(15 * time.Second): // If response is not received in 15 seconds, return card dead.
+		return hex.EncodeToString([]byte(APDUCardDead)), nil
+	}
 }
 
 func (a *apdu) Receive() chan []byte {

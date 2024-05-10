@@ -31,7 +31,6 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
 	c.forSystem(cmd)
 
-	// We don't need check the error output, because we are using the stdio interface. (most of the time, the error output is empty.)
 	stdout, _ := cmd.StdoutPipe()
 	stdin, _ := cmd.StdinPipe()
 
@@ -39,25 +38,23 @@ func (c *Cmder) Run(arguments []string, dst any, progress Progress) error {
 		return err
 	}
 
-	var outputErr error
-	scanner := bufio.NewScanner(stdout)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		output := scanner.Text()
-		if outputErr = c.handleOutput(output, stdin, dst, progress); outputErr != nil {
-			break
-		}
-	}
-	stdin.Close()
-	stdout.Close()
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
+	cmdErr := c.process(stdout, stdin, dst, progress)
 	if err := cmd.Wait(); err != nil {
 		slog.Error("command wait error", "error", err)
 	}
-	return outputErr
+	return cmdErr
+}
+
+func (c *Cmder) process(output io.ReadCloser, input io.WriteCloser, dst any, progress Progress) error {
+	scanner := bufio.NewScanner(output)
+	scanner.Split(bufio.ScanLines)
+	var cmdErr error
+	for scanner.Scan() {
+		if err := c.handleOutput(scanner.Text(), input, dst, progress); err != nil {
+			cmdErr = err
+		}
+	}
+	return cmdErr
 }
 
 func (c *Cmder) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {

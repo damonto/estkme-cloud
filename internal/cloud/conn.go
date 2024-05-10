@@ -51,7 +51,7 @@ func (c *Conn) registerHandlers() {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Processing notifications..."))
 		if err := processNotification(ctx, conn); err != nil {
-			slog.Error("error processing notification", "error", err)
+			slog.Error("failed to process notification", "error", err)
 			return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
 		}
 		return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
@@ -61,7 +61,7 @@ func (c *Conn) registerHandlers() {
 		defer conn.Close()
 		conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
 		if err := downloadProfile(ctx, conn, data); err != nil {
-			slog.Error("error downloading profile", "error", err)
+			slog.Error("failed to download profile", "error", err)
 			return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
 		}
 		return conn.Send(TagMessageBox, []byte("Your profile has been downloaded successfully"))
