@@ -2,6 +2,7 @@ package cloud
 
 import (
 	"encoding/hex"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -42,6 +43,7 @@ func (a *apdu) Transmit(command string) (string, error) {
 	case r := <-a.receiver:
 		return hex.EncodeToString(r), nil
 	case <-time.After(15 * time.Second): // If response is not received in 15 seconds, return card dead.
+		slog.Error("APDU response timeout", "command", command, "timeout", "15s", "response", APDUCardDead)
 		return hex.EncodeToString([]byte(APDUCardDead)), nil
 	}
 }
