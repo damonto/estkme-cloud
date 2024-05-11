@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eSTK.me Cloud Enhance Community Server</title>
+  <meta name="description"
+    content="eSTK.me Cloud Enhance Community Server is a community server for eSTK.me Cloud Enhance feature.">
+  <meta name="keywords"
+    content="eSTK.me, eSTK Community Server, eSTK.me Cloud Server, eSTK.me Cloud Enhance Server, eSTK.me rLPA">
+  <meta name="author" content="Damon To">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .background-image {
+      background-image: url('./assets/background.jpg');
+      background-size: cover;
+      background-position: center center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="w-screen h-screen background-image">
+    <div class="w-screen h-screen flex flex-col justify-center items-center backdrop-filter backdrop-blur-sm">
+      <h1 class="text-6xl text-white font-bold">eSTK.me Community Server</h1>
+      <p class="text-lg text-gray-300 font-semibold py-4">Make eSTK.me Cloud Enhance faster!</p>
+      <div class="py-12">
+        <div class="flex">
+          <input class="rounded-l-sm p-2 text-4xl bg-white text-center text-stone-800" type="text"
+            value="cloud.esim.cyou" />
+          <button id="copy-btn"
+            class="rounded-r-sm py-2 px-6 bg-blue-600 text-white text-lg hover:shadow-lg">COPY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const copy = document.getElementById('copy-btn')
+    copy.addEventListener('click', () => {
+      const text = document.querySelector('input')
+      text.select()
+      document.execCommand('copy')
+      alert('Copied to clipboard!')
+    })
+  </script>
+</body>
+
+</html>
