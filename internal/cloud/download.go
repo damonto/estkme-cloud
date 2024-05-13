@@ -103,16 +103,14 @@ func useData(conn *Conn, cmd []byte) error {
 	message := fmt.Sprintf("You used %d KiB data", kb)
 	count := kb * 1024 / 256
 	for i := 1; i <= count; i++ {
+		var placeholder []byte
 		if i == count {
-			placeholder := bytes.Repeat([]byte{0}, 253-len(message)-len(cmd)-6) // -6=finished message tlv + close packet tlv
-			if err := conn.Send(TagMessageBox, placeholder); err != nil {
-				return err
-			}
+			placeholder = bytes.Repeat([]byte{0}, 253-len(message)-len(cmd)-6) // -6=finished message tlv + close packet tlv
 		} else {
-			placeholder := bytes.Repeat([]byte{0}, 253)
-			if err := conn.Send(TagMessageBox, placeholder); err != nil {
-				return err
-			}
+			placeholder = bytes.Repeat([]byte{0}, 253)
+		}
+		if err := conn.Send(TagMessageBox, placeholder); err != nil {
+			return err
 		}
 	}
 	return conn.Send(TagMessageBox, []byte(message))
