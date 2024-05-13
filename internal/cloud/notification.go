@@ -8,6 +8,16 @@ import (
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
+func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error {
+	defer conn.Close()
+	conn.Send(TagMessageBox, []byte("Processing notifications..."))
+	if err := processNotification(ctx, conn); err != nil {
+		slog.Error("failed to process notification", "error", err)
+		return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
+	}
+	return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
+}
+
 func processNotification(ctx context.Context, conn *Conn) error {
 	cmder := lpac.NewCmder(ctx, conn.APDU)
 	notifications, err := cmder.NotificationList()

@@ -46,26 +46,8 @@ func (c *Conn) registerHandlers() {
 	c.RegisterHandler(TagManagement, func(ctx context.Context, conn *Conn, data []byte) error {
 		return conn.Send(TagMessageBox, []byte("Welcome! \n You are connected to the server. \n Here is your PIN\n"+conn.Id))
 	})
-
-	c.RegisterHandler(TagProcessNotification, func(ctx context.Context, conn *Conn, data []byte) error {
-		defer conn.Close()
-		conn.Send(TagMessageBox, []byte("Processing notifications..."))
-		if err := processNotification(ctx, conn); err != nil {
-			slog.Error("failed to process notification", "error", err)
-			return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
-		}
-		return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
-	})
-
-	c.RegisterHandler(TagDownloadProfile, func(ctx context.Context, conn *Conn, data []byte) error {
-		defer conn.Close()
-		conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
-		if err := downloadProfile(ctx, conn, data); err != nil {
-			slog.Error("failed to download profile", "error", err)
-			return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
-		}
-		return conn.Send(TagMessageBox, []byte("Your profile has been downloaded successfully"))
-	})
+	c.RegisterHandler(TagProcessNotification, handleProcessNotification)
+	c.RegisterHandler(TagDownloadProfile, handleDownloadProfile)
 }
 
 func (c *Conn) RegisterHandler(tag Tag, handler Handler) error {

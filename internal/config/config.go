@@ -42,11 +42,11 @@ func (c *Config) IsValid() error {
 	return nil
 }
 
-func (c *Config) GetAdvertising() string {
+func (c *Config) GetAdvertising() []byte {
 	if c.Advertising != "" {
-		return "!! Advertising !! \n" + c.Advertising
+		return []byte("!! Advertising !! \n" + c.Advertising)
 	}
-	return c.Advertising
+	return []byte{}
 }
 
 func (c *Config) LoadEnv() {
