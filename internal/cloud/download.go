@@ -14,8 +14,10 @@ import (
 
 const (
 	ErrInvalidActivationCode   = "invalid activation code"
-	ErrRequireConfirmationCode = "confirmation code is required\n"
+	ErrRequireConfirmationCode = "confirmation code is required"
 	ErrInvalidDataSize         = "invalid data size"
+
+	CmdUseData = "data" // data$<size in KB>
 )
 
 // GSM 7-bit encoding, see https://en.wikipedia.org/wiki/GSM_03.38
@@ -28,7 +30,7 @@ var (
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 	defer conn.Close()
 	cmd := strings.ToLower(string(data[:3]))
-	if cmd == "kmp" {
+	if cmd == CmdUseData {
 		err := useData(conn, data)
 		if err != nil {
 			slog.Error("failed to use data", "error", err)
@@ -69,7 +71,7 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
 			parts[4] = bytes.Replace([]byte("<confirmation_code>"), []byte("_"), GSMUnderscore, 1)
-			return errors.New(ErrRequireConfirmationCode + string(bytes.Join(parts, GSMDollarSign)))
+			return errors.New(ErrRequireConfirmationCode + "\n" + string(bytes.Join(parts, GSMDollarSign)))
 		}
 	}
 
