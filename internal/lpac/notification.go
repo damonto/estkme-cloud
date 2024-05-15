@@ -1,6 +1,9 @@
 package lpac
 
-import "strconv"
+import (
+	"sort"
+	"strconv"
+)
 
 type Notification struct {
 	SeqNumber                  int    `json:"seqNumber"`
@@ -21,6 +24,9 @@ func (c *Cmder) NotificationList() ([]Notification, error) {
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {
 		return notifications, err
 	}
+	sort.Slice(notifications, func(i, j int) bool {
+		return notifications[i].SeqNumber < notifications[j].SeqNumber
+	})
 	return notifications, nil
 }
 
