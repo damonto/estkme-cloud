@@ -24,7 +24,6 @@ const (
 var (
 	GSMNumberSign = []byte{0x23} // #
 	GSMDollarSign = []byte{0x02} // $
-	GSMUnderscore = []byte{0x11} // _
 )
 
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
@@ -70,7 +69,7 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 	if len(parts) == 5 {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
-			parts[4] = bytes.Replace([]byte("<confirmation_code>"), []byte("_"), GSMUnderscore, 1)
+			parts[4] = []byte("<confirmation_code>")
 			return errors.New(ErrRequireConfirmationCode + "\n" + string(bytes.Join(parts, GSMDollarSign)))
 		}
 	}

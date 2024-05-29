@@ -72,6 +72,11 @@ func (c *Conn) Handle(tag Tag, data []byte) {
 func (c *Conn) Send(tag Tag, data []byte) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
+
+	if tag == TagMessageBox {
+		data = ToGSM7(data)
+	}
+
 	packet := c.pack(tag, data)
 	if tag == TagAPDU {
 		slog.Debug("sending data to", "id", c.Id, "tag", tag, "packet", hex.EncodeToString(packet))

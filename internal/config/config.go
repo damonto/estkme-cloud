@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -44,7 +45,7 @@ func (c *Config) IsValid() error {
 
 func (c *Config) GetAdvertising() []byte {
 	if c.Advertising != "" {
-		return []byte("!! Advertising !! \n" + c.Advertising)
+		return []byte("!! Advertising !! \n" + strings.Replace(c.Advertising, "_br_", "\n", -1))
 	}
 	return []byte{}
 }
