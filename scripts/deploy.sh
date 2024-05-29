@@ -19,8 +19,13 @@ if [ ! -x "$(command -v systemctl)" ] && [ ! -x "$(command -v supervisorctl)" ];
     exit 1
 fi
 
+# Check if the system is Debian 11 (bullseye)
+if [ "$(lsb_release -cs)" == "bullseye" ]; then
+    echo "deb http://deb.debian.org/debian/ sid main" > /etc/apt/sources.list.d/sid.list
+fi
+
 # Install dependencies
-apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl
+apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl libc6
 
 # Get the latest release version
 get_latest_release() {
