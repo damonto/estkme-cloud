@@ -21,11 +21,15 @@ fi
 
 # Check if the system is Debian 11 (bullseye)
 if [ "$(lsb_release -cs)" == "bullseye" ]; then
-    echo "deb http://deb.debian.org/debian/ sid main" > /etc/apt/sources.list.d/sid.list
+    echo "You are using Debian 11 (bullseye), please add sid repository to install libc6 from sid repository"
+    echo "If you have added sid repository, please ignore this message"
+    echo "You can run the following command to add sid repository:"
+    echo "echo 'deb http://deb.debian.org/debian/ sid main' > /etc/apt/sources.list.d/sid.list"
+    echo "apt update && apt install -y libc6"
 fi
 
 # Install dependencies
-apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl libc6
+apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev libpcsclite-dev zip curl
 
 # Get the latest release version
 get_latest_release() {
