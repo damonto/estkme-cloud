@@ -106,7 +106,7 @@ func useData(conn *Conn, cmd []byte) error {
 	for i := 1; i <= count; i++ {
 		var placeholder []byte
 		if i == count {
-			placeholder = bytes.Repeat([]byte{0}, 253-len(message)-len(cmd)-6) // -6=finished message tlv + close packet tlv
+			placeholder = bytes.Repeat([]byte{0}, 253-len(message)-len(cmd)-6)
 		} else {
 			placeholder = bytes.Repeat([]byte{0}, 253)
 		}
