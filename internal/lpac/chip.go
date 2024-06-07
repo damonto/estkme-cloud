@@ -22,7 +22,7 @@ type ExtCardResource struct {
 	FreeVolatileMemory    int `json:"freeVolatileMemory"`
 }
 
-func (c *Cmder) Info() (Info, error) {
+func (c *Cmd) Info() (Info, error) {
 	var info Info
 	if err := c.Run([]string{"chip", "info"}, &info, nil); err != nil {
 		return info, err

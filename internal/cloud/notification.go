@@ -19,7 +19,7 @@ func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error 
 }
 
 func processNotification(ctx context.Context, conn *Conn) error {
-	cmder := lpac.NewCmder(ctx, conn.APDU)
+	cmder := lpac.NewCmd(ctx, conn.APDU)
 	notifications, err := cmder.NotificationList()
 	if err != nil {
 		return err

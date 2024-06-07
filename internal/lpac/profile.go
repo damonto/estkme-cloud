@@ -31,7 +31,7 @@ const (
 	ErrDeletionNotificationNotFound = "deletion notification not found"
 )
 
-func (c *Cmder) ProfileList() ([]Profile, error) {
+func (c *Cmd) ProfileList() ([]Profile, error) {
 	var profiles []Profile
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return profiles, err
@@ -39,7 +39,7 @@ func (c *Cmder) ProfileList() ([]Profile, error) {
 	return profiles, nil
 }
 
-func (c *Cmder) ProfileInfo(ICCID string) (Profile, error) {
+func (c *Cmd) ProfileInfo(ICCID string) (Profile, error) {
 	var profiles []Profile
 	if err := c.Run([]string{"profile", "list"}, &profiles, nil); err != nil {
 		return Profile{}, err
@@ -53,7 +53,7 @@ func (c *Cmder) ProfileInfo(ICCID string) (Profile, error) {
 	return Profile{}, nil
 }
 
-func (c *Cmder) ProfileDownload(activationCode ActivationCode, progress Progress) error {
+func (c *Cmd) ProfileDownload(activationCode ActivationCode, progress Progress) error {
 	arguments := []string{"profile", "download"}
 	if activationCode.SMDP != "" {
 		arguments = append(arguments, "-s", activationCode.SMDP)
@@ -73,7 +73,7 @@ func (c *Cmder) ProfileDownload(activationCode ActivationCode, progress Progress
 	})
 }
 
-func (c *Cmder) sendNotificationAfterDownloading(action func() error) error {
+func (c *Cmd) sendNotificationAfterDownloading(action func() error) error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (c *Cmder) sendNotificationAfterDownloading(action func() error) error {
 	return nil
 }
 
-func (c *Cmder) ProfileDelete(ICCID string) error {
+func (c *Cmd) ProfileDelete(ICCID string) error {
 	if err := c.Run([]string{"profile", "delete", ICCID}, nil, nil); err != nil {
 		return err
 	}
@@ -129,11 +129,11 @@ func (c *Cmder) ProfileDelete(ICCID string) error {
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
 
-func (c *Cmder) ProfileSetNickname(ICCID string, nickname string) error {
+func (c *Cmd) ProfileSetNickname(ICCID string, nickname string) error {
 	return c.Run([]string{"profile", "nickname", ICCID, nickname}, nil, nil)
 }
 
-func (c *Cmder) ProfileDiscovery() ([]DiscoveryResponse, error) {
+func (c *Cmd) ProfileDiscovery() ([]DiscoveryResponse, error) {
 	var response []DiscoveryResponse
 	if err := c.Run([]string{"profile", "discovery"}, &response, nil); err != nil {
 		return response, err

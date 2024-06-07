@@ -6,10 +6,10 @@ import (
 	"os/exec"
 )
 
-func (c *Cmder) forSystem(cmd *exec.Cmd) {
+func (c *Cmd) forSystem(cmd *exec.Cmd) {
 	//
 }
 
-func (c *Cmder) bin() string {
+func (c *Cmd) bin() string {
 	return "lpac"
 }

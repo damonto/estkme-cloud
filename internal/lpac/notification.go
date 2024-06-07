@@ -19,7 +19,7 @@ const (
 	NotificationProfileManagementOperationDelete  = "delete"
 )
 
-func (c *Cmder) NotificationList() ([]Notification, error) {
+func (c *Cmd) NotificationList() ([]Notification, error) {
 	var notifications []Notification
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {
 		return notifications, err
@@ -30,7 +30,7 @@ func (c *Cmder) NotificationList() ([]Notification, error) {
 	return notifications, nil
 }
 
-func (c *Cmder) NotificationProcess(seqNumber int, remove bool, progress Progress) error {
+func (c *Cmd) NotificationProcess(seqNumber int, remove bool, progress Progress) error {
 	arguments := []string{"notification", "process", strconv.Itoa(seqNumber)}
 	if remove {
 		arguments = append(arguments, "-r")
@@ -38,11 +38,11 @@ func (c *Cmder) NotificationProcess(seqNumber int, remove bool, progress Progres
 	return c.Run(arguments, nil, progress)
 }
 
-func (c *Cmder) NotificationDelete(seqNumber int) error {
+func (c *Cmd) NotificationDelete(seqNumber int) error {
 	return c.Run([]string{"notification", "remove", strconv.Itoa(seqNumber)}, nil, nil)
 }
 
-func (c *Cmder) NotificationPurge() error {
+func (c *Cmd) NotificationPurge() error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err

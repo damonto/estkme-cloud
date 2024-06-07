@@ -7,12 +7,12 @@ import (
 	"syscall"
 )
 
-func (c *Cmder) forSystem(cmd *exec.Cmd) {
+func (c *Cmd) forSystem(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		HideWindow: true,
 	}
 }
 
-func (c *Cmder) bin() string {
+func (c *Cmd) bin() string {
 	return "lpac.exe"
 }
