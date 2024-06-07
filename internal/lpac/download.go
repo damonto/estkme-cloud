@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -24,33 +25,35 @@ var packageNames = map[string]string{
 	"darwin:arm64":  "lpac-darwin-universal.zip",
 }
 
-func Download(dataDir, version string) error {
+func Download(dir, version string) error {
 	if _, ok := packageNames[runtime.GOOS+":"+runtime.GOARCH]; !ok {
 		return errors.ErrUnsupported
 	}
-
-	if !shouldDownload(dataDir, version) {
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
+	}
+	if !shouldDownload(dir, version) {
 		slog.Info("lpac already downloaded", "version", version)
 		return nil
 	}
-	return download(dataDir, version)
+	return download(dir, version)
 }
 
-func download(dataDir, version string) error {
-	if err := setupDstDir(dataDir); err != nil {
+func download(dir, version string) error {
+	if err := setupDstDir(dir); err != nil {
 		return err
 	}
 
-	path, err := downloadFile(fmt.Sprintf(DownloadUrl, version, packageNames[runtime.GOOS+":"+runtime.GOARCH]), dataDir)
+	path, err := downloadFile(fmt.Sprintf(DownloadUrl, version, packageNames[runtime.GOOS+":"+runtime.GOARCH]), dir)
 	if err != nil {
 		return err
 	}
 
-	if err := unzip(path, dataDir); err != nil {
+	if err := unzip(path, dir); err != nil {
 		return err
 	}
 
-	if _, err := os.Create(filepath.Join(dataDir, version)); err != nil {
+	if _, err := os.Create(filepath.Join(dir, version)); err != nil {
 		slog.Warn("failed to create version file", "version", version, "error", err)
 	}
 
@@ -60,7 +63,7 @@ func download(dataDir, version string) error {
 	return nil
 }
 
-func unzip(filePath string, dataDir string) error {
+func unzip(filePath string, dir string) error {
 	zipReader, err := zip.OpenReader(filePath)
 	if err != nil {
 		return err
@@ -72,7 +75,7 @@ func unzip(filePath string, dataDir string) error {
 			continue
 		}
 
-		dst, err := os.OpenFile(filepath.Join(dataDir, f.Name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		dst, err := os.OpenFile(filepath.Join(dir, f.Name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			return err
 		}
@@ -88,13 +91,13 @@ func unzip(filePath string, dataDir string) error {
 	return nil
 }
 
-func downloadFile(url string, dataDir string) (string, error) {
+func downloadFile(url string, dir string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	filePath := filepath.Join(dataDir, "lpac.zip")
+	filePath := filepath.Join(dir, "lpac.zip")
 	out, err := os.Create(filePath)
 	if err != nil {
 		return "", err
@@ -104,16 +107,16 @@ func downloadFile(url string, dataDir string) (string, error) {
 	return filePath, err
 }
 
-func setupDstDir(dataDir string) error {
-	os.RemoveAll(dataDir)
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+func setupDstDir(dir string) error {
+	os.RemoveAll(dir)
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 	return nil
 }
 
-func shouldDownload(dataDir, version string) bool {
-	versionFile := filepath.Join(dataDir, version)
+func shouldDownload(dir, version string) bool {
+	versionFile := filepath.Join(dir, version)
 	stat, err := os.Stat(versionFile)
 	if os.IsNotExist(err) {
 		return true
