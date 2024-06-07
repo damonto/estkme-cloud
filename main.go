@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 
 	"github.com/damonto/estkme-cloud/internal/cloud"
@@ -16,10 +15,14 @@ import (
 var Version string
 
 func init() {
-	cwd, _ := os.Getwd()
+	dir, err := os.MkdirTemp("", "estkme-cloud")
+	if err != nil {
+		panic(err)
+	}
+
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
-	flag.StringVar(&config.C.DataDir, "data-dir", filepath.Join(cwd, "data"), "data directory")
-	flag.StringVar(&config.C.LpacVersion, "lpac-version", "v2.0.1", "lpac version")
+	flag.StringVar(&config.C.Dir, "dir", dir, "the directory to store lpac")
+	flag.StringVar(&config.C.Version, "version", "v2.0.1", "the version of lpac to download")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
@@ -40,7 +43,7 @@ func initApp() {
 	}
 
 	if !config.C.DontDownload {
-		if err := lpac.Download(config.C.DataDir, config.C.LpacVersion); err != nil {
+		if err := lpac.Download(config.C.Dir, config.C.Version); err != nil {
 			slog.Error("failed to download lpac", "error", err)
 			os.Exit(1)
 		}

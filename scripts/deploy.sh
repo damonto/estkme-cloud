@@ -96,7 +96,7 @@ else
 fi
 ESTKME_CLOUD_BINARY_URL="https://github.com/damonto/estkme-cloud/releases/download/v$ESTKME_CLOUD_VERSION/$ESTKME_CLOUD_BINARY"
 
-START_CMD="/opt/estkme-cloud/estkme-cloud --data-dir=/opt/estkme-cloud/data --dont-download"
+START_CMD="/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud/data --dont-download"
 if [ -n "$1" ]; then
     START_CMD="$START_CMD --advertising='$1'"
 fi
