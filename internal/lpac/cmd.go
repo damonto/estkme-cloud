@@ -2,6 +2,7 @@ package lpac
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -31,6 +32,8 @@ func (c *Cmd) Run(arguments []string, dst any, progress Progress) error {
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
 	c.forSystem(cmd)
 
+	stderr := bytes.Buffer{}
+	cmd.Stderr = &stderr
 	stdout, _ := cmd.StdoutPipe()
 	stdin, _ := cmd.StdinPipe()
 
@@ -40,7 +43,7 @@ func (c *Cmd) Run(arguments []string, dst any, progress Progress) error {
 
 	cmdErr := c.process(stdout, stdin, dst, progress)
 	if err := cmd.Wait(); err != nil {
-		slog.Error("command wait error", "error", err)
+		slog.Error("command wait error", "error", err, "stderr", stderr.String())
 	}
 	return cmdErr
 }
