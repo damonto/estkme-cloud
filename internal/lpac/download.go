@@ -96,6 +96,9 @@ func downloadFile(url string, dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to download lpac: " + resp.Status)
+	}
 	defer resp.Body.Close()
 	filePath := filepath.Join(dir, "lpac.zip")
 	out, err := os.Create(filePath)
