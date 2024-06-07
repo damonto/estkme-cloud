@@ -51,13 +51,13 @@ Usage of estkme-cloud:
   -advertising string
         advertising message to show on the server (max: 100 characters)
   -dir string
-        data directory (default "/home/user/workspace/estkme-cloud/data")
+        the directory to store lpac (default "/home/user/workspace/estkme-cloud/data")
   -dont-download
         don't download lpac
   -listen-address string
         eSTK.me cloud enhance server listen address (default ":1888")
   -version string
-        lpac version (default "v2.0.1")
+        the version of lpac to download (default "v2.0.1")
   -verbose
         verbose mode
 ```
