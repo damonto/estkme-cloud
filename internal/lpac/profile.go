@@ -27,8 +27,9 @@ type DiscoveryResponse struct {
 	RspServerAddress string `json:"rspServerAddress"`
 }
 
-const (
-	ErrDeletionNotificationNotFound = "deletion notification not found"
+var (
+	ErrDeletionNotificationNotFound = errors.New("deletion notification not found")
+	ErrProfileNotFound              = errors.New("profile not found")
 )
 
 func (c *Cmd) ProfileList() ([]Profile, error) {
@@ -50,7 +51,7 @@ func (c *Cmd) ProfileInfo(ICCID string) (Profile, error) {
 			return profile, nil
 		}
 	}
-	return Profile{}, nil
+	return Profile{}, ErrProfileNotFound
 }
 
 func (c *Cmd) ProfileDownload(activationCode ActivationCode, progress Progress) error {
@@ -124,7 +125,7 @@ func (c *Cmd) ProfileDelete(ICCID string) error {
 		}
 	}
 	if deletionNotificationSeqNumber > 0 {
-		return errors.New(ErrDeletionNotificationNotFound)
+		return ErrDeletionNotificationNotFound
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
 }
