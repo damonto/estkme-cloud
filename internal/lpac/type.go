@@ -32,3 +32,10 @@ type Payload struct {
 
 type LPAPyaload = Payload
 type ProgressPayload = Payload
+
+type ProfileState string
+
+const (
+	ProfileStateEnabled  ProfileState = "enabled"
+	ProfileStateDisabled ProfileState = "disabled"
+)
