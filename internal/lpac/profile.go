@@ -54,7 +54,7 @@ func (c *Cmd) ProfileInfo(ICCID string) (Profile, error) {
 	return Profile{}, ErrProfileNotFound
 }
 
-func (c *Cmd) ProfileDownload(activationCode ActivationCode, progress Progress) error {
+func (c *Cmd) ProfileDownload(activationCode *ActivationCode, progress Progress) error {
 	arguments := []string{"profile", "download"}
 	if activationCode.SMDP != "" {
 		arguments = append(arguments, "-s", activationCode.SMDP)

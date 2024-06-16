@@ -74,7 +74,7 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 		}
 	}
 
-	return lpac.NewCmd(ctx, conn.APDU).ProfileDownload(lpac.ActivationCode{
+	return lpac.NewCmd(ctx, conn.APDU).ProfileDownload(&lpac.ActivationCode{
 		SMDP:             string(parts[1]),
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,
