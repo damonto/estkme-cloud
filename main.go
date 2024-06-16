@@ -22,7 +22,7 @@ func init() {
 
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
 	flag.StringVar(&config.C.Dir, "dir", dir, "the directory to store lpac")
-	flag.StringVar(&config.C.Version, "version", "v2.0.1", "the version of lpac to download")
+	flag.StringVar(&config.C.Version, "version", "v2.0.2", "the version of lpac to download")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")

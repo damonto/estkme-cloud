@@ -19,8 +19,8 @@ const (
 	NotificationProfileManagementOperationDelete  = "delete"
 )
 
-func (c *Cmd) NotificationList() ([]Notification, error) {
-	var notifications []Notification
+func (c *Cmd) NotificationList() ([]*Notification, error) {
+	var notifications []*Notification
 	if err := c.Run([]string{"notification", "list"}, &notifications, nil); err != nil {
 		return notifications, err
 	}
