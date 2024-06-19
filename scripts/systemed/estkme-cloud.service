@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=your_user_here
 Restart=on-failure
-ExecStart=/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud/data
+ExecStart=/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud
 RestartSec=10s
 TimeoutStopSec=30s
 

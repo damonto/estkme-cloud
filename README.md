@@ -51,7 +51,7 @@ Usage of estkme-cloud:
   -advertising string
         advertising message to show on the server (max: 100 characters)
   -dir string
-        the directory to store lpac (default "/home/user/workspace/estkme-cloud/data")
+        the directory to store lpac (default "/tmp/estkme-cloud")
   -dont-download
         don't download lpac
   -listen-address string
