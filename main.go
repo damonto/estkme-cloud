@@ -34,12 +34,10 @@ func initApp() {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Warn("verbose mode is enabled, this will print out sensitive information")
 	}
-
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
 		os.Exit(1)
 	}
-
 	if !config.C.DontDownload {
 		if err := lpac.Download(config.C.Dir, config.C.Version); err != nil {
 			slog.Error("failed to download lpac", "error", err)

@@ -13,6 +13,7 @@ jobs:
     name: Build for ${{ matrix.target.name }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         target:
           - { os: linux, arch: amd64, name: Linux AMD64 }
