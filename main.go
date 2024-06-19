@@ -15,13 +15,11 @@ import (
 var Version string
 
 func init() {
-	dir, err := os.MkdirTemp("", "estkme-cloud")
-	if err != nil {
+	if err := os.MkdirAll("/tmp/estkme-cloud", 0755); err != nil {
 		panic(err)
 	}
-
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
-	flag.StringVar(&config.C.Dir, "dir", dir, "the directory to store lpac")
+	flag.StringVar(&config.C.Dir, "dir", "/tmp/estkme-cloud", "the directory to store lpac")
 	flag.StringVar(&config.C.Version, "version", "v2.0.2", "the version of lpac to download")
 	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
