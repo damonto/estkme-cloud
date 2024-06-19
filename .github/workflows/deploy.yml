@@ -9,24 +9,24 @@ on:
     branches: ['v*.*.*']
 
 jobs:
-  extract-servers:
-    name: Extract Servers
+  init:
+    name: Initialize
     runs-on: ubuntu-latest
     outputs:
-      servers: ${{ steps.extract.outputs.matrix }}
+      servers: ${{ steps.prepare.outputs.matrix }}
     steps:
-      - name: Extract servers from vars.SSH_SERVER_LIST
-        id: extract
+      - name: Prepare server list
+        id: prepare
         run: echo "matrix=$(echo '${{ vars.SSH_SERVER_LIST }}' | jq -c .)" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy to ${{ matrix.server.name }}
     runs-on: ubuntu-latest
-    needs: [extract-servers]
+    needs: [init]
     strategy:
       fail-fast: false
       matrix:
-        server: ${{ fromJSON(needs.extract-servers.outputs.servers) }}
+        server: ${{ fromJSON(needs.init.outputs.servers) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
