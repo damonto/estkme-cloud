@@ -102,7 +102,7 @@ file=/tmp/supervisor.sock
 serverurl=unix:///tmp/supervisor.sock
 
 [program:estkme-cloud]
-command="$START_CMD"
+command=$START_CMD
 autostart=true
 autorestart=true
 stdout_logfile=/dev/stdout
