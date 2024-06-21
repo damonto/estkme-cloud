@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -xe
 
 if [ "$(id -u)" != "0" ]; then
     echo "Please run as root"
@@ -32,14 +32,19 @@ fi
 apt-get update -y && apt-get install -y git unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
 DST_DIR="/opt/estkme-cloud"
-# Build lpac
+
 LPAC_VERSION=$(curl -Ls https://api.github.com/repos/estkme-group/lpac/releases/latest | grep tag_name | cut -d '"' -f 4)
-curl -L -o lpac.zip https://github.com/estkme-group/lpac/archive/refs/tags/${LPAC_VERSION}.zip
+curl -L -o lpac.zip https://github.com/estkme-group/lpac/archive/refs/tags/$LPAC_VERSION.zip
 unzip lpac.zip && rm -f lpac.zip && cd lpac-*
 cmake . -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off && make -j $(nproc)
 cp output/lpac $DST_DIR && cd .. && rm -rf lpac-*
 
-# Download estkme-cloud
+if [ -x "$(command -v systemctl)" ] && [ "$(systemctl is-active estkme-cloud.service)" == "active" ]; then
+  systemctl stop estkme-cloud.service
+elif [ -x "$(command -v supervisorctl)" ] &&  [ "$(supervisorctl status estkme-cloud | awk '{print $2}')" == "RUNNING" ]; then
+  supervisorctl stop estkme-cloud
+fi
+
 ESTKME_CLOUD_VERSION=$(curl -Ls https://api.github.com/repos/damonto/estkme-cloud/releases/latest | grep tag_name | cut -d '"' -f 4)
 if [ "$(uname -m)" == "x86_64" ]; then
     ESTKME_CLOUD_BINARY="estkme-cloud-linux-amd64"
@@ -49,13 +54,7 @@ else
     echo "Unsupported architecture"
     exit 1
 fi
-ESTKME_CLOUD_BINARY_URL="https://github.com/damonto/estkme-cloud/releases/download/$ESTKME_CLOUD_VERSION/$ESTKME_CLOUD_BINARY"
-if [ -x "$(command -v systemctl)" ] && [ "$(systemctl is-active estkme-cloud.service)" == "active" ]; then
-  systemctl stop estkme-cloud.service
-elif [ -x "$(command -v supervisorctl)" ] &&  [ "$(supervisorctl status estkme-cloud | awk '{print $2}')" == "RUNNING" ]; then
-  supervisorctl stop estkme-cloud
-fi
-curl -L -o $DST_DIR/estkme-cloud $ESTKME_CLOUD_BINARY_URL
+curl -L -o $DST_DIR/estkme-cloud https://github.com/damonto/estkme-cloud/releases/download/$ESTKME_CLOUD_VERSION/$ESTKME_CLOUD_BINARY
 chmod +x $DST_DIR/estkme-cloud
 
 START_CMD="/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud --dont-download"
