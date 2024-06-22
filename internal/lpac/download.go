@@ -17,18 +17,11 @@ const (
 	DownloadUrl = "https://github.com/estkme-group/lpac/releases/download/%s/%s"
 )
 
-var packageNames = map[string]string{
-	"linux:amd64":   "lpac-linux-x86_64.zip",
-	"windows:amd64": "lpac-windows-x86_64-mingw.zip",
-	"windows:arm64": "lpac-windows-arm64-mingw.zip",
-	"darwin:amd64":  "lpac-darwin-universal.zip",
-	"darwin:arm64":  "lpac-darwin-universal.zip",
-}
+var (
+	ErrUnsupportedArch = errors.New("lpac does not currently have a binary file for this architecture, you must build it yourself from the source code")
+)
 
 func Download(dir, version string) error {
-	if _, ok := packageNames[runtime.GOOS+":"+runtime.GOARCH]; !ok {
-		return errors.ErrUnsupported
-	}
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
@@ -39,12 +32,34 @@ func Download(dir, version string) error {
 	return download(dir, version)
 }
 
+func packageName() string {
+	switch runtime.GOOS {
+	case "linux":
+		switch runtime.GOARCH {
+		case "amd64", "386":
+			return "lpac-linux-x86_64.zip"
+		case "arm64":
+			return "lpac-linux-aarch64.zip"
+		default:
+			return "lpac-linux-" + runtime.GOARCH + ".zip"
+		}
+	case "windows":
+		if runtime.GOARCH == "amd64" || runtime.GOARCH == "386" {
+			return "lpac-windows-x86_64-mingw.zip"
+		}
+		return "lpac-windows-" + runtime.GOARCH + "-mingw.zip"
+	case "darwin":
+		return "lpac-darwin-universal.zip"
+	}
+	return ""
+}
+
 func download(dir, version string) error {
 	if err := setupDstDir(dir); err != nil {
 		return err
 	}
 
-	path, err := downloadFile(fmt.Sprintf(DownloadUrl, version, packageNames[runtime.GOOS+":"+runtime.GOARCH]), dir)
+	path, err := downloadFile(fmt.Sprintf(DownloadUrl, version, packageName()), dir)
 	if err != nil {
 		return err
 	}
@@ -97,6 +112,9 @@ func downloadFile(url string, dir string) (string, error) {
 		return "", err
 	}
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return "", ErrUnsupportedArch
+		}
 		return "", errors.New("failed to download lpac: " + resp.Status)
 	}
 	defer resp.Body.Close()

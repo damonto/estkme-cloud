@@ -26,7 +26,6 @@ jobs:
           - { os: darwin, arch: arm64, name: macos-arm64 }
           - { os: windows, arch: amd64, name: windows-amd64 }
           - { os: windows, arch: arm64, name: windows-amd64 }
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
