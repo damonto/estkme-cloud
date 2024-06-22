@@ -5,7 +5,3 @@
 .vscode
 .idea
 *.swp
-
-# Data
-data/
-lpac/
