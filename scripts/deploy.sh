@@ -2,6 +2,8 @@
 
 set -xe
 
+DST_DIR="/opt/estkme-cloud"
+
 if [ "$(id -u)" != "0" ]; then
     echo "Please run as root"
     exit 1
@@ -31,30 +33,32 @@ fi
 # Install dependencies
 apt-get update -y && apt-get install -y git unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
-DST_DIR="/opt/estkme-cloud"
-
+# Compile lpac
 LPAC_VERSION=$(curl -Ls https://api.github.com/repos/estkme-group/lpac/releases/latest | grep tag_name | cut -d '"' -f 4)
 curl -L -o lpac.zip https://github.com/estkme-group/lpac/archive/refs/tags/$LPAC_VERSION.zip
 unzip lpac.zip && rm -f lpac.zip && cd lpac-*
 cmake . -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off && make -j $(nproc)
 cp output/lpac $DST_DIR && cd .. && rm -rf lpac-*
 
+# Download and install eSTK.me Cloud Enhance Server
 if [ -x "$(command -v systemctl)" ] && [ "$(systemctl is-active estkme-cloud.service)" == "active" ]; then
   systemctl stop estkme-cloud.service
 elif [ -x "$(command -v supervisorctl)" ] &&  [ "$(supervisorctl status estkme-cloud | awk '{print $2}')" == "RUNNING" ]; then
   supervisorctl stop estkme-cloud
 fi
 
-ESTKME_CLOUD_VERSION=$(curl -Ls https://api.github.com/repos/damonto/estkme-cloud/releases/latest | grep tag_name | cut -d '"' -f 4)
-if [ "$(uname -m)" == "x86_64" ]; then
-    ESTKME_CLOUD_BINARY="estkme-cloud-linux-amd64"
-elif [ "$(uname -m)" == "aarch64" ]; then
-    ESTKME_CLOUD_BINARY="estkme-cloud-linux-arm64"
-else
+declare -A ESTKME_CLOUD_BINARIES=(
+    ["x86_64"]="estkme-cloud-linux-amd64"
+    ["aarch64"]="estkme-cloud-linux-arm64"
+    ["mips64"]="estkme-cloud-linux-mips64"
+    ["riscv64"]="estkme-cloud-linux-riscv64"
+)
+if [ -z "${ESTKME_CLOUD_BINARIES[$(uname -m)]}" ]; then
     echo "Unsupported architecture"
     exit 1
 fi
-curl -L -o $DST_DIR/estkme-cloud https://github.com/damonto/estkme-cloud/releases/download/$ESTKME_CLOUD_VERSION/$ESTKME_CLOUD_BINARY
+ESTKME_CLOUD_VERSION=$(curl -Ls https://api.github.com/repos/damonto/estkme-cloud/releases/latest | grep tag_name | cut -d '"' -f 4)
+curl -L -o $DST_DIR/estkme-cloud https://github.com/damonto/estkme-cloud/releases/download/$ESTKME_CLOUD_VERSION/${ESTKME_CLOUD_BINARIES[$(uname -m)]}
 chmod +x $DST_DIR/estkme-cloud
 
 START_CMD="/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud --dont-download"
