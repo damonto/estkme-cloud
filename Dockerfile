@@ -13,7 +13,7 @@ RUN set -ex \
     && make -j$(nproc)
 
 # Build: estkme-cloud
-FROM golang:1.22-alpine as estkme-cloud-builder
+FROM golang:1.22-alpine AS estkme-cloud-builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN set -ex \
     && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
 
 # Production
-FROM alpine:3.20 as production
+FROM alpine:3.20 AS production
 
 WORKDIR /app
 
