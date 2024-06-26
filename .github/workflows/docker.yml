@@ -31,21 +31,6 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
-            ghcr.io/${{ github.repository_owner }}/estkme-cloud
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=branch
-            type=ref,event=tag
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -66,6 +51,20 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch
+            type=ref,event=tag
 
       - name: Build and push by digest
         id: build
@@ -133,6 +132,8 @@ jobs:
             type=semver,pattern={{major}}
             type=ref,event=branch
             type=ref,event=tag
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index
 
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request'
