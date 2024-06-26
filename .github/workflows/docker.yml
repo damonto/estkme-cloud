@@ -155,7 +155,7 @@ jobs:
           set -x
           annotations=$(jq -cr '.annotations | map((split("=")[0] + "=\"" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          eval "docker buildx imagetools create $annotations $tags $(printf 'ghcr.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s ' *)"
+          eval "docker buildx imagetools create $annotations $tags $(printf 'docker.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s ' *)"
 
       - name: Inspect image
         run: |
