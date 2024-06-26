@@ -105,6 +105,7 @@ jobs:
   merge:
     name: Merge and Push image manifest
     runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs:
       - build
     steps:
