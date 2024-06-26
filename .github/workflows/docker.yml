@@ -44,14 +44,6 @@ jobs:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
             ghcr.io/${{ github.repository_owner }}/estkme-cloud
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -128,14 +120,6 @@ jobs:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
             ghcr.io/${{ github.repository_owner }}/estkme-cloud
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
