@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xe
+set -eux
 
 DST_DIR="/opt/estkme-cloud"
 
