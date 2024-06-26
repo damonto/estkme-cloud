@@ -7,7 +7,7 @@ RUN apk add --no-cache git gcc cmake make musl-dev curl-dev
 
 COPY . .
 
-RUN set -ex \
+RUN set -eux \
     && cd lpac \
     && cmake . -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off \
     && make -j$(nproc)
@@ -21,7 +21,7 @@ ARG VERSION
 
 COPY . .
 
-RUN set -ex \
+RUN set -eux \
     && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
 
 # Production
@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=lpac-builder /app/lpac/output/lpac /app/lpac
 COPY --from=estkme-cloud-builder /app/estkme-cloud /app/estkme-cloud
 
-RUN set -ex \
+RUN set -eux \
     && apk add --no-cache libcurl
 
 EXPOSE 1888
