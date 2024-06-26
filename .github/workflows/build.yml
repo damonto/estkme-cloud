@@ -31,15 +31,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Go
         id: go
         uses: actions/setup-go@v5
         with:
           go-version: 1.22
+
       - name: Build for ${{ matrix.target.name }}
         run: |
           VERSION=$(git describe --always --tags --match "v*" --dirty="-dev")
           CGO_ENABLED=0 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.os }}-${{ matrix.target.arch }}
+
       - name: Upload ${{ matrix.target.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,6 +62,7 @@ jobs:
         with:
           merge-multiple: true
           pattern: "*"
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
