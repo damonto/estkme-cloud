@@ -44,6 +44,14 @@ jobs:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
             ghcr.io/${{ github.repository_owner }}/estkme-cloud
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -66,7 +74,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v6
         with:
@@ -76,7 +84,7 @@ jobs:
             BUILDKIT_CONTEXT_KEEP_GIT_DIR=true
             VERSION=${{ steps.meta.outputs.version }}
           provenance: false
-          # tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
           cache-from: type=gha
@@ -120,6 +128,14 @@ jobs:
           images: |
             ${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
             ghcr.io/${{ github.repository_owner }}/estkme-cloud
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -139,9 +155,9 @@ jobs:
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud@sha256:%s ' *)
+            $(printf '${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud@sha256:%s' *)
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s ' *)
+            $(printf 'ghcr.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s' *)
 
       - name: Inspect image
         run: |
