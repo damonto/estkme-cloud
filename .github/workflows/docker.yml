@@ -12,7 +12,7 @@ on:
     branches: [main]
 
 jobs:
-  docker:
+  build:
     name: Build for ${{ matrix.platform }}
     runs-on: ubuntu-latest
     strategy:
@@ -79,6 +79,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
