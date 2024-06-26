@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
   push:
     tags: [v*]
-    paths-ignore:
-      - "**/*.md"
-      - LICENSE
   pull_request:
     branches: [main]
 
@@ -19,8 +16,6 @@ jobs:
       matrix:
         platform:
           - linux/amd64
-          - linux/arm64
-          - linux/arm/v7
     permissions:
       contents: read
       packages: write
@@ -57,7 +52,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
+            ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -79,9 +74,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
-          outputs: type=image,"name=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud,ghcr.io/${{ github.repository_owner }}/estkme-cloud",push-by-digest=true,name-canonical=true,push=${{ startsWith(github.ref, 'refs/tags/v') }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=image,"name=ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud,docker.io/${{ github.repository_owner }}/estkme-cloud",push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
@@ -123,8 +118,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
             ghcr.io/${{ github.repository_owner }}/estkme-cloud
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -156,7 +151,7 @@ jobs:
           set -x
           annotations=$(jq -cr '.annotations | map((split("=")[0] + "=\"" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          eval "docker buildx imagetools create $annotations $tags $(printf 'docker.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s ' *)"
+          eval "docker buildx imagetools create $annotations $tags $(printf 'ghcr.io/${{ github.repository_owner }}/estkme-cloud@sha256:%s ' *)"
 
       - name: Inspect image
         run: |
