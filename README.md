@@ -142,7 +142,7 @@ LPA:1$SM-DP+$Matching Id#<custom_imei>
 
 Please replace `<custom_imei>` with the actual IMEI.
 
-You can also use the followint command to consume your cellular data:
+You can also use the following command to consume your cellular data:
 ```plaintext
 data$<amount_of_data_in_KiB>
 ```
