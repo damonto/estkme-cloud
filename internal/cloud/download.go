@@ -17,7 +17,7 @@ const (
 	ErrRequireConfirmationCode = "confirmation code is required"
 	ErrInvalidDataSize         = "invalid data size"
 
-	CmdUseData = "data" // data$<size in KB>
+	CmdUseData = "data" // data$<size in KiB>
 )
 
 // GSM 7-bit encoding, see https://en.wikipedia.org/wiki/GSM_03.38
