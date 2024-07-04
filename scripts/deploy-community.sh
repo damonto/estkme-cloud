@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# curl -Lso- https://raw.githubusercontent.com/damonto/estkme-cloud/main/scripts/deploy-community.sh | bash
+
 # Check if docker is installed
 if ! [ -x "$(command -v docker)" ]; then
   echo 'Error: docker is not installed.' >&2
