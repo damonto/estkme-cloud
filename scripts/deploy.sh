@@ -5,18 +5,17 @@ set -eux
 DST_DIR="/opt/estkme-cloud"
 
 # Install dependencies
-apt-get update -y && apt-get install -y git unzip cmake pkg-config libcurl4-openssl-dev zip curl
+apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
-# Compile lpac
+# Download the latest version of lpac and compile it
 LPAC_VERSION=$(curl -Ls https://api.github.com/repos/estkme-group/lpac/releases/latest | grep tag_name | cut -d '"' -f 4)
 curl -L -o lpac.zip https://github.com/estkme-group/lpac/archive/refs/tags/"$LPAC_VERSION".zip
 unzip lpac.zip && rm -f lpac.zip && cd lpac-*
 cmake . -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off && make -j $(nproc)
 cp output/lpac "$DST_DIR" && cd .. && rm -rf lpac-*
 
-# Stop estkme-cloud
+# Download and Install estkme-cloud
 supervisorctl stop estkme-cloud
-
 declare -A ESTKME_CLOUD_BINARIES=(
     ["x86_64"]="estkme-cloud-linux-amd64"
     ["aarch64"]="estkme-cloud-linux-arm64"
@@ -32,7 +31,7 @@ curl -L -o "$DST_DIR"/estkme-cloud https://github.com/damonto/estkme-cloud/relea
 chmod +x "$DST_DIR"/estkme-cloud
 
 START_CMD="/opt/estkme-cloud/estkme-cloud --dir=/opt/estkme-cloud --dont-download"
-if [ -n "$1" ]; then
+if [ $# -ge 1 ] && [ -n "$1" ]; then
     START_CMD="$START_CMD --advertising='$1'"
 fi
 
