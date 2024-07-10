@@ -24,7 +24,7 @@ logfile_maxbytes=0
 pidfile=/tmp/supervisord.pid
 
 [rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+supervisor.rpcinterface_factory=supervisor.rpcinterface:make_main_rpcinterface
 
 [unix_http_server]
 file=/tmp/supervisor.sock
@@ -33,7 +33,7 @@ file=/tmp/supervisor.sock
 serverurl=unix:///tmp/supervisor.sock
 
 [include]
-files = /etc/supervisor/conf.d/*.conf
+files=/etc/supervisor/conf.d/*.conf
 _EOF
 
 EXPOSE 22 1888
