@@ -33,7 +33,7 @@ func ToTitle(s string) string {
 	return string(unicode.ToUpper(r[0])) + string(r[1:])
 }
 
-func ToGSM7(b []byte) []byte {
+func ToGSM7Bytes(b []byte) []byte {
 	var result []byte
 	for _, c := range b {
 		if v, ok := GSM7CharacterSet[rune(c)]; ok {

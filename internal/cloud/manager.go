@@ -13,13 +13,13 @@ type Manager interface {
 	Len() int
 }
 
-var (
-	ErrConnNotFound = errors.New("conn not found")
-)
-
 type manager struct {
 	conns sync.Map
 }
+
+var (
+	ErrConnNotFound = errors.New("conn not found")
+)
 
 func NewManager() Manager {
 	return &manager{}

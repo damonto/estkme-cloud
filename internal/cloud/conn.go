@@ -74,7 +74,7 @@ func (c *Conn) Send(tag Tag, data []byte) error {
 	defer c.lock.Unlock()
 
 	if tag == TagMessageBox {
-		data = ToGSM7(data)
+		data = ToGSM7Bytes(data)
 	}
 
 	packet := c.pack(tag, data)

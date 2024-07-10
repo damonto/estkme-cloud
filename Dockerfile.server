@@ -2,11 +2,13 @@ FROM debian:bookworm-slim
 
 ENV SSH_PUBLIC_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAYtTh3Z4dllW6CjUXb5hzRR+/akTd4Xp8Q+gH//uSQI"
 
+WORKDIR /opt/estkme-cloud
+
 RUN set -xe \
   && apt-get update \
-  && apt-get install -y --no-install-recommends supervisor openssh-server sudo \
+  && apt-get install -y --no-install-recommends supervisor openssh-server \
   && apt-get clean \
-  && mkdir -p var/run/sshd \
+  && mkdir -p /var/run/sshd \
   && sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config \
   && sed -i 's/^#\(PubkeyAuthentication\) .*/\1 yes/' /etc/ssh/sshd_config \
   && mkdir -p /root/.ssh \
@@ -30,14 +32,8 @@ file=/tmp/supervisor.sock
 [supervisorctl]
 serverurl=unix:///tmp/supervisor.sock
 
-[program:estkme-cloud]
-command="echo 'Hello, World!' && sleep 3600"
-autostart=true
-autorestart=true
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
+[include]
+files = /etc/supervisor/conf.d/*.conf
 _EOF
 
 EXPOSE 22 1888
