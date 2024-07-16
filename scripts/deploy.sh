@@ -16,31 +16,6 @@ if [ -z "${ESTKME_CLOUD_BINARIES[$(uname -m)]}" ]; then
     exit 1
 fi
 
-# Delete it after the next release.
-if [ -f /etc/supervisor/supervisord.conf ]; then
-  if grep -q "estkme-cloud" /etc/supervisor/supervisord.conf; then
-    cat > /etc/supervisor/supervisord.conf <<'_EOF'
-[supervisord]
-nodaemon=true
-logfile=/dev/null
-logfile_maxbytes=0
-pidfile=/tmp/supervisord.pid
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[unix_http_server]
-file=/tmp/supervisor.sock
-
-[supervisorctl]
-serverurl=unix:///tmp/supervisor.sock
-
-[include]
-files = /etc/supervisor/conf.d/*.conf
-_EOF
-  fi
-fi
-
 # Install dependencies.
 apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
