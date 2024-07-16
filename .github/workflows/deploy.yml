@@ -46,5 +46,5 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
           chmod 600 $HOME/.ssh/id_ed25519
 
-          scp -i $HOME/.ssh/id_ed25519 -P ${{ matrix.server.port }} -r scripts/deploy.sh ${{ matrix.server.user }}@${{ matrix.server.host }}:/opt/estkme-cloud
-          ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ matrix.server.user }}@${{ matrix.server.host }} -p ${{ matrix.server.port }} "/opt/estkme-cloud/deploy.sh '${{ matrix.server.ad }}' && rm -f /opt/estkme-cloud/deploy.sh"
+          scp -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no -P ${{ matrix.server.port }} -r scripts/deploy.sh ${{ matrix.server.user }}@${{ matrix.server.host }}:/opt/estkme-cloud
+          ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ matrix.server.user }}@${{ matrix.server.host }} -p ${{ matrix.server.port }} "sudo /opt/estkme-cloud/deploy.sh '${{ matrix.server.ad }}' && rm -f /opt/estkme-cloud/deploy.sh"
