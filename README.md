@@ -15,12 +15,6 @@ cd estkme-cloud
 go build -trimpath -ldflags="-w -s" -o estkme-cloud main.go
 ```
 
-You can also install the latest version using the following command:
-
-```bash
-go install github.com/damonto/estkme-cloud@latest
-```
-
 Sometimes, you might need to set executable permissions for the binary file using the following command:
 
 ```bash
