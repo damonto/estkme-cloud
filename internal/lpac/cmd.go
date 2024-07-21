@@ -27,10 +27,9 @@ func NewCmd(ctx context.Context, APDU driver.APDU) *Cmd {
 func (c *Cmd) Run(arguments []string, dst any, progress Progress) error {
 	c.APDU.Lock()
 	defer c.APDU.Unlock()
-	cmd := exec.CommandContext(c.ctx, filepath.Join(config.C.Dir, c.bin()), arguments...)
+	cmd := exec.CommandContext(c.ctx, filepath.Join(config.C.Dir, "lpac"), arguments...)
 	cmd.Dir = config.C.Dir
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
-	c.forSystem(cmd)
 
 	stderr := bytes.Buffer{}
 	cmd.Stderr = &stderr
