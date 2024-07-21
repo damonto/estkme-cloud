@@ -43,11 +43,6 @@ func packageName() string {
 		default:
 			return "lpac-linux-" + runtime.GOARCH + ".zip"
 		}
-	case "windows":
-		if runtime.GOARCH == "amd64" || runtime.GOARCH == "386" {
-			return "lpac-windows-x86_64-mingw.zip"
-		}
-		return "lpac-windows-" + runtime.GOARCH + "-mingw.zip"
 	case "darwin":
 		return "lpac-darwin-universal.zip"
 	}
