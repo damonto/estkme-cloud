@@ -38,15 +38,14 @@ func packageName() string {
 		switch runtime.GOARCH {
 		case "amd64", "386":
 			return "lpac-linux-x86_64.zip"
-		case "arm64":
-			return "lpac-linux-aarch64.zip"
 		default:
 			return "lpac-linux-" + runtime.GOARCH + ".zip"
 		}
 	case "darwin":
 		return "lpac-darwin-universal.zip"
+	default:
+		return ""
 	}
-	return ""
 }
 
 func download(dir, version string) error {
