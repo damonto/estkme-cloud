@@ -124,7 +124,7 @@ func (c *Cmd) ProfileDelete(ICCID string) error {
 			break
 		}
 	}
-	if deletionNotificationSeqNumber > 0 {
+	if deletionNotificationSeqNumber < 0 {
 		return ErrDeletionNotificationNotFound
 	}
 	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
