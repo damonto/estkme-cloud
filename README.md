@@ -4,6 +4,8 @@
 
 This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications.
 
+If you don't have an eSTK.me eUICC yet, you can get one from [eSTK.me](https://estk.me) and use the coupon code eSIMCyou to receive a 10% discount.
+
 ### Installation
 
 You can download the binary release from the [releases page](https://github.com/damonto/estkme-cloud/releases) or you can build it yourself.
