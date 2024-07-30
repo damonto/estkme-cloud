@@ -28,7 +28,7 @@ var (
 
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 	defer conn.Close()
-	cmd := strings.ToLower(string(data[:3]))
+	cmd := strings.ToLower(string(data[:4]))
 	if cmd == CmdUseData {
 		err := useData(conn, data)
 		if err != nil {
