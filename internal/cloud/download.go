@@ -12,31 +12,23 @@ import (
 	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
-const (
-	ErrInvalidActivationCode   = "invalid activation code"
-	ErrRequireConfirmationCode = "confirmation code is required"
-	ErrInvalidDataSize         = "invalid data size"
-
-	CmdUseData = "data" // data$<size in KiB>
-)
-
-// GSM 7-bit encoding, see https://en.wikipedia.org/wiki/GSM_03.38
 var (
+	ErrInvalidActivationCode = errors.New("invalid activation code")
+	ErrInvalidDataSize       = errors.New("invalid data size")
+	// GSM 7-bit encoding, see https://en.wikipedia.org/wiki/GSM_03.38
 	GSMNumberSign = []byte{0x23} // #
 	GSMDollarSign = []byte{0x02} // $
 )
 
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 	defer conn.Close()
-	cmd := strings.ToLower(string(data[:4]))
-	if cmd == CmdUseData {
+	if strings.ToLower(string(data[:4])) == "data" {
 		err := useData(conn, data)
 		if err != nil {
 			slog.Error("failed to use data", "error", err)
 		}
 		return err
 	}
-
 	conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
 	if err := download(ctx, conn, data); err != nil {
 		slog.Error("failed to download profile", "error", err)
@@ -57,7 +49,7 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 	}
 
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
-		return errors.New(ErrInvalidActivationCode)
+		return ErrInvalidActivationCode
 	}
 
 	var matchingId string
@@ -70,7 +62,7 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 		confirmationCode = string(parts[4])
 		if confirmationCode == "1" {
 			parts[4] = []byte("<confirmation_code>")
-			return errors.New(ErrRequireConfirmationCode + "\n" + string(bytes.Join(parts, GSMDollarSign)))
+			return errors.New("confirmation code is required" + "\n" + string(bytes.Join(parts, GSMDollarSign)))
 		}
 	}
 
@@ -98,7 +90,7 @@ func useData(conn *Conn, cmd []byte) error {
 	}
 
 	if kb > 1024 || kb < 0 {
-		return errors.New(ErrInvalidDataSize)
+		return ErrInvalidDataSize
 	}
 
 	message := fmt.Sprintf("You used %d KiB data", kb)
