@@ -53,3 +53,4 @@ stderr_logfile_maxbytes=0
 EOF
 
 supervisorctl update
+supervisorctl start estkme-cloud
