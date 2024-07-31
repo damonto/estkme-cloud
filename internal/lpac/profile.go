@@ -2,6 +2,7 @@ package lpac
 
 import (
 	"errors"
+	"log/slog"
 )
 
 type ActivationCode struct {
@@ -69,12 +70,12 @@ func (c *Cmd) ProfileDownload(activationCode *ActivationCode, progress Progress)
 		arguments = append(arguments, "-i", activationCode.IMEI)
 	}
 
-	return c.sendNotificationAfterDownloading(func() error {
+	return c.sendNotificationAfterExecution(func() error {
 		return c.Run(arguments, nil, progress)
-	})
+	}, true)
 }
 
-func (c *Cmd) sendNotificationAfterDownloading(action func() error) error {
+func (c *Cmd) sendNotificationAfterExecution(action func() error, remove bool) error {
 	notifications, err := c.NotificationList()
 	if err != nil {
 		return err
@@ -94,44 +95,28 @@ func (c *Cmd) sendNotificationAfterDownloading(action func() error) error {
 	if err != nil {
 		return err
 	}
-
-	var installationNotificationSeqNumber int
 	for _, notification := range notifications {
-		if notification.SeqNumber > lastSeqNumber && notification.ProfileManagementOperation == NotificationProfileManagementOperationInstall {
-			installationNotificationSeqNumber = notification.SeqNumber
-			break
+		if notification.SeqNumber > lastSeqNumber {
+			slog.Debug("processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "remove", remove)
+			if err := c.NotificationProcess(notification.SeqNumber, remove, nil); err != nil {
+				slog.Error("failed to process notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "remove", remove, "error", err)
+				return err
+			}
 		}
-	}
-	if installationNotificationSeqNumber > 0 {
-		return c.NotificationProcess(installationNotificationSeqNumber, true, nil)
 	}
 	return nil
 }
 
 func (c *Cmd) ProfileDelete(ICCID string) error {
-	if err := c.Run([]string{"profile", "delete", ICCID}, nil, nil); err != nil {
-		return err
-	}
-
-	notifications, err := c.NotificationList()
-	if err != nil {
-		return err
-	}
-	var deletionNotificationSeqNumber int
-	for _, notification := range notifications {
-		if notification.ICCID == ICCID && notification.ProfileManagementOperation == NotificationProfileManagementOperationDelete {
-			deletionNotificationSeqNumber = notification.SeqNumber
-			break
-		}
-	}
-	if deletionNotificationSeqNumber < 0 {
-		return ErrDeletionNotificationNotFound
-	}
-	return c.NotificationProcess(deletionNotificationSeqNumber, false, nil)
+	return c.sendNotificationAfterExecution(func() error {
+		return c.Run([]string{"profile", "delete", ICCID}, nil, nil)
+	}, false)
 }
 
 func (c *Cmd) ProfileEnable(ICCID string) error {
-	return c.Run([]string{"profile", "enable", ICCID}, nil, nil)
+	return c.sendNotificationAfterExecution(func() error {
+		return c.Run([]string{"profile", "enable", ICCID}, nil, nil)
+	}, true)
 }
 
 func (c *Cmd) ProfileSetNickname(ICCID string, nickname string) error {

@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os/exec"
@@ -44,7 +45,10 @@ func (c *Cmd) Run(arguments []string, dst any, progress Progress) error {
 	if err := cmd.Wait(); err != nil {
 		slog.Error("command wait error", "error", err, "stderr", stderr.String())
 	}
-	return cmdErr
+	if cmdErr != nil {
+		return fmt.Errorf("%w %s", cmdErr, &stderr)
+	}
+	return nil
 }
 
 func (c *Cmd) process(output io.ReadCloser, input io.WriteCloser, dst any, progress Progress) error {
