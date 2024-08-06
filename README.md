@@ -104,12 +104,6 @@ docker run -d --name estkme-cloud -p 1888:1888 ghcr.io/damonto/estkme-cloud:late
 
 Once the server is running, the server will listen on the specified port (default: 1888) and you can send requests to the server.
 
-To use community servers deployed in multiple regions, use:
-
-```plaintext
-cloud.estk.me
-```
-
 #### Download
 
 To download a profile, you should enable the `Cloud Enhance` feature on the eUICC and set the server listening address to the server address. The server will handle the download request and download the profile to the eUICC.
