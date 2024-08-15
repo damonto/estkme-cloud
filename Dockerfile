@@ -13,7 +13,7 @@ RUN set -eux \
     && make -j$(nproc)
 
 # Build: estkme-cloud
-FROM golang:1.22-alpine AS estkme-cloud-builder
+FROM golang:1.23-alpine AS estkme-cloud-builder
 
 WORKDIR /app
 
