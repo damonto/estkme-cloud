@@ -13,6 +13,8 @@ const (
 	CommandAPDUFuncTransmit        Command = "transmit"
 
 	ProgressMetadataParse = "es8p_meatadata_parse"
+
+	LPADownloadCancelled = "cancelled"
 )
 
 var HumanReadableText = map[string]string{

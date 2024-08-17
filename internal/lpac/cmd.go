@@ -16,6 +16,8 @@ import (
 	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
+var ErrDownloadCancelled = errors.New("download cancelled")
+
 type Cmd struct {
 	ctx  context.Context
 	APDU driver.APDU
@@ -56,7 +58,9 @@ func (c *Cmd) process(output io.ReadCloser, input io.WriteCloser, dst any, progr
 	scanner.Split(bufio.ScanLines)
 	var cmdErr error
 	for scanner.Scan() {
-		if err := c.handleOutput(scanner.Text(), input, dst, progress); err != nil {
+		text := scanner.Text()
+		slog.Debug("lpac command output", "output", text)
+		if err := c.handleOutput(text, input, dst, progress); err != nil {
 			cmdErr = err
 		}
 	}
@@ -64,7 +68,6 @@ func (c *Cmd) process(output io.ReadCloser, input io.WriteCloser, dst any, progr
 }
 
 func (c *Cmd) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
-	slog.Debug("lpac output", "output", output)
 	var commandOutput CommandOutput
 	if err := json.Unmarshal([]byte(output), &commandOutput); err != nil {
 		return err
@@ -90,6 +93,9 @@ func (c *Cmd) handleLPAResponse(payload json.RawMessage, dst any) error {
 	}
 
 	if lpaPayload.Code != 0 {
+		if lpaPayload.Message == LPADownloadCancelled {
+			return ErrDownloadCancelled
+		}
 		var errorMessage string
 		if err := json.Unmarshal(lpaPayload.Data, &errorMessage); err != nil {
 			return errors.New(lpaPayload.Message)
@@ -99,6 +105,7 @@ func (c *Cmd) handleLPAResponse(payload json.RawMessage, dst any) error {
 		}
 		return errors.New(errorMessage)
 	}
+
 	if dst != nil {
 		return json.Unmarshal(lpaPayload.Data, dst)
 	}
