@@ -43,7 +43,7 @@ func (a *apdu) Transmit(command string) (string, error) {
 	case r := <-a.receiver:
 		return hex.EncodeToString(r), nil
 	case <-time.After(2 * time.Minute): // If response is not received in 2 minutes, return a timeout error.
-		slog.Debug("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCommunicateTimeout)
+		slog.Warn("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCommunicateTimeout)
 		return hex.EncodeToString([]byte(APDUCommunicateTimeout)), nil
 	}
 }

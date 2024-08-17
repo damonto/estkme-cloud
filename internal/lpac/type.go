@@ -2,7 +2,7 @@ package lpac
 
 import "encoding/json"
 
-type Progress = func(current string) error
+type Progress = func(current string, profileMetadata *Profile) error
 
 type CommandOutput struct {
 	Type    Command         `json:"type"`

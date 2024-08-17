@@ -71,7 +71,16 @@ func download(ctx context.Context, conn *Conn, data []byte) error {
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,
 		IMEI:             imei,
-	}, func(current string) error {
+	}, func(current string, profileMetadata *lpac.Profile) error {
+		if current == lpac.ProgressMetadataParse {
+			template := `
+Downloading Profile...
+Provider Name: %s
+Profile Name: %s
+ICCID: %s
+`
+			return conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.ICCID)))
+		}
 		return conn.Send(TagMessageBox, []byte(current))
 	})
 }

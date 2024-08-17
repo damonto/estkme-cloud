@@ -64,6 +64,7 @@ func (c *Cmd) process(output io.ReadCloser, input io.WriteCloser, dst any, progr
 }
 
 func (c *Cmd) handleOutput(output string, input io.WriteCloser, dst any, progress Progress) error {
+	slog.Debug("lpac output", "output", output)
 	var commandOutput CommandOutput
 	if err := json.Unmarshal([]byte(output), &commandOutput); err != nil {
 		return err
@@ -109,10 +110,19 @@ func (c *Cmd) handleProgress(payload json.RawMessage, progress Progress) error {
 	if err := json.Unmarshal(payload, &progressPayload); err != nil {
 		return err
 	}
-	if step, ok := HumanReadableSteps[progressPayload.Message]; ok {
-		return progress(step)
+
+	if progressPayload.Message == ProgressMetadataParse {
+		profileMetadata := &Profile{}
+		if err := json.Unmarshal(progressPayload.Data, profileMetadata); err != nil {
+			return err
+		}
+		return progress(progressPayload.Message, profileMetadata)
 	}
-	return progress(progressPayload.Message)
+
+	if text, ok := HumanReadableText[progressPayload.Message]; ok {
+		return progress(text, nil)
+	}
+	return nil
 }
 
 func (c *Cmd) handleAPDU(payload json.RawMessage, input io.WriteCloser) error {
