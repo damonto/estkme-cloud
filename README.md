@@ -6,6 +6,14 @@ This is a simple server designed to handle requests from the eSTK.me removable e
 
 If you don't have an eSTK.me eUICC yet, you can get one from [eSTK.me](https://www.estk.me?aid=esim) and use the coupon code `eSIMCyou` to receive a 10% discount.
 
+### Community Server
+
+If you want to use our community server which provides faster download speed and more features, you can use the following server address:
+
+```plaintext
+cloud.estk.me
+```
+
 ### Installation
 
 You can download the binary release from the [releases page](https://github.com/damonto/estkme-cloud/releases) or you can build it yourself.
