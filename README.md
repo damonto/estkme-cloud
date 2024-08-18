@@ -11,7 +11,7 @@ If you don't have an eSTK.me eUICC yet, you can get one from [eSTK.me](https://w
 If you want to use our community server which provides faster download speed and more features, you can use the following server address:
 
 ```plaintext
-cloud.estk.me
+cloud.esim.cyou
 ```
 
 ### Installation
