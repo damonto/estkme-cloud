@@ -14,6 +14,8 @@ If you want to use our community server which provides faster download speed and
 cloud.esim.cyou
 ```
 
+And, you can visit the [eSIM.cyou Status Page](https://status.esim.cyou) to check the server status.
+
 ### Installation
 
 You can download the binary release from the [releases page](https://github.com/damonto/estkme-cloud/releases) or you can build it yourself.
