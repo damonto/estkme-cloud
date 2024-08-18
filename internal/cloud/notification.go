@@ -15,7 +15,7 @@ func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error 
 		slog.Error("failed to process notification", "error", err)
 		return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
 	}
-	return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully"))
+	return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully."))
 }
 
 func processNotification(ctx context.Context, conn *Conn) error {
@@ -24,7 +24,6 @@ func processNotification(ctx context.Context, conn *Conn) error {
 	if err != nil {
 		return err
 	}
-
 	for _, notification := range notifications {
 		if err := cmd.NotificationProcess(notification.SeqNumber, notification.ProfileManagementOperation != lpac.NotificationProfileManagementOperationDelete, nil); err != nil {
 			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "error", err)
