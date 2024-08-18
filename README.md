@@ -14,7 +14,7 @@ If you want to use our community server which provides faster download speed and
 cloud.esim.cyou
 ```
 
-And, you can visit the [eSIM.cyou Status Page](https://status.esim.cyou) to check the server status.
+And, you can visit the [eSIM.cyou status](https://status.esim.cyou) to check the server status.
 
 ### Installation
 
