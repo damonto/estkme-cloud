@@ -19,7 +19,7 @@ var (
 	GSMNumberSign = []byte{0x23} // #
 	GSMDollarSign = []byte{0x02} // $
 
-	ActivationCodeSchemaAC     = []byte("LPA:")
+	ActivationCodeSchemaLPA    = []byte("LPA:")
 	ActivationCodeSchemaQRCyou = []byte("https://qr.esim.cyou/")
 )
 
@@ -48,8 +48,8 @@ func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 func decodeActivationCode(activationCode []byte) (*lpac.ActivationCode, error) {
 	if bytes.HasPrefix(activationCode, ActivationCodeSchemaQRCyou) {
 		activationCode, _ = bytes.CutPrefix(activationCode, ActivationCodeSchemaQRCyou)
-		if !bytes.HasPrefix(activationCode, ActivationCodeSchemaAC) {
-			activationCode = append(ActivationCodeSchemaAC, activationCode...)
+		if !bytes.HasPrefix(activationCode, ActivationCodeSchemaLPA) {
+			activationCode = append(ActivationCodeSchemaLPA, activationCode...)
 		}
 	}
 
