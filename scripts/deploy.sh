@@ -3,6 +3,7 @@
 set -eux
 
 DST_DIR="/opt/estkme-cloud"
+
 declare -A ESTKME_CLOUD_BINARIES=(
     ["x86_64"]="estkme-cloud-linux-amd64"
     ["aarch64"]="estkme-cloud-linux-arm64"
@@ -17,14 +18,19 @@ if [ -z "${ESTKME_CLOUD_BINARIES[$(uname -m)]}" ]; then
 fi
 
 # Install dependencies.
-apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev zip curl
+apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
 # Download the latest version of lpac and compile it.
 LPAC_VERSION=$(curl -Ls https://api.github.com/repos/estkme-group/lpac/releases/latest | grep tag_name | cut -d '"' -f 4)
-curl -L -o lpac.zip https://github.com/estkme-group/lpac/archive/refs/tags/"$LPAC_VERSION".zip
-unzip lpac.zip && rm -f lpac.zip && cd lpac-*
-cmake . -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off && make -j $(nproc)
-cp output/lpac "$DST_DIR" && cd .. && rm -rf lpac-*
+curl -L -o lpac-"$LPAC_VERSION".zip https://github.com/estkme-group/lpac/archive/refs/tags/"$LPAC_VERSION".zip
+unzip lpac-"$LPAC_VERSION".zip
+rm -f lpac-"$LPAC_VERSION".zip
+cd lpac-*
+cmake -B build -DLPAC_WITH_APDU_PCSC=off -DLPAC_WITH_APDU_AT=off -S .
+make -j$(nproc) -C build
+cp build/output/lpac "$DST_DIR"
+cd "$DST_DIR"
+rm -rf lpac-*
 
 # if estkme-cloud is already running stop it.
 if supervisorctl status estkme-cloud | grep -q RUNNING; then
@@ -54,3 +60,6 @@ EOF
 
 supervisorctl update
 supervisorctl start estkme-cloud
+
+# Clean up
+rm -- "$0"
