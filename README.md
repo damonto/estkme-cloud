@@ -156,7 +156,7 @@ Please replace `<amount_of_data_in_KiB>` with the actual data amount.
 
 You can use the following command to list the last 4 notifications:
 ```plaintext
-/list <enable|disable|install|delete>
+/ln <enable|disable|install|delete>
 ```
 
 ##### Process Notification
@@ -165,7 +165,7 @@ You can use the following command to process notification:
 ```plaintext
 /process <seq number>
 ```
-You can get the `seq number` from the list command.
+You can get the `seq number` from the `/ln` command.
 
 #### Notification
 

@@ -27,7 +27,7 @@ var (
 
 	CommandConsumeData         = []byte("/data")
 	CommandProcessNotification = []byte("/process")
-	CommandListNotifications   = []byte("/list")
+	CommandListNotifications   = []byte("/ln")
 
 	CommandArgumentSplitter       = []byte(" ")
 	CommandListNotificationsLimit = 4
