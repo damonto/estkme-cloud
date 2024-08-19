@@ -154,7 +154,7 @@ Please replace `<amount_of_data_in_KiB>` with the actual data amount.
 
 ##### List Notifications
 
-You can use the following command to list the last 5 notifications:
+You can use the following command to list the last 4 notifications:
 ```plaintext
 /list <enable|disable|install|delete>
 ```

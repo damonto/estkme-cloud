@@ -30,7 +30,7 @@ var (
 	CommandListNotifications   = []byte("/list")
 
 	CommandArgumentSplitter       = []byte(" ")
-	CommandListNotificationsLimit = 5
+	CommandListNotificationsLimit = 4
 
 	ActivationCodeSchemaLPA    = []byte("LPA:")
 	ActivationCodeSchemaQRCyou = []byte("qr.esim.cyou/")
@@ -156,7 +156,7 @@ func handleListNotifications(ctx context.Context, conn *Conn, arguments [][]byte
 		message += fmt.Sprintf(
 			"%d %s %s\n",
 			notification.SeqNumber,
-			notification.ICCID[len(notification.ICCID)-4:],
+			fmt.Sprintf("%s...%s", notification.ICCID[:5], notification.ICCID[len(notification.ICCID)-4:]),
 			notification.ProfileManagementOperation,
 		)
 		count--
