@@ -142,12 +142,30 @@ LPA:1$SM-DP+$Matching Id#<custom_imei>
 
 Please replace `<custom_imei>` with the actual IMEI.
 
+#### Useful Commands
+
+##### Consume Data
+
 You can also use the following command to consume your cellular data:
 ```plaintext
-data$<amount_of_data_in_KiB>
+/data <amount_of_data_in_KiB>
+```
+Please replace `<amount_of_data_in_KiB>` with the actual data amount.
+
+##### List Notifications
+
+You can use the following command to list the last 5 notifications:
+```plaintext
+/list <enable|disable|install|delete>
 ```
 
-Please replace `<amount_of_data_in_KiB>` with the actual data amount.
+##### Process Notification
+
+You can use the following command to process notification:
+```plaintext
+/process <seq number>
+```
+You can get the `seq number` from the list command.
 
 #### Notification
 

@@ -32,7 +32,16 @@ func processNotification(ctx context.Context, conn *Conn) error {
 			}
 		}
 		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "iccid", notification.ICCID, "operation", notification.ProfileManagementOperation)
-		if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Notification has been processed. \n Seq number: %d \n ICCID: %s \n Operation: %s", notification.SeqNumber, notification.ICCID, notification.ProfileManagementOperation))); err != nil {
+		if err := conn.Send(TagMessageBox,
+			[]byte(
+				fmt.Sprintf(
+					"Notification has been processed. \n Seq number: %d \n ICCID: %s \n Operation: %s",
+					notification.SeqNumber,
+					notification.ICCID,
+					notification.ProfileManagementOperation,
+				),
+			),
+		); err != nil {
 			return err
 		}
 	}
