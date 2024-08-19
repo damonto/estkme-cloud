@@ -47,7 +47,7 @@ func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 		return err
 	}
 
-	conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n Please wait..."))
+	conn.Send(TagMessageBox, []byte("Your profile is being downloaded. \n It may take a few minutes. \n To avoid download failure, please do not lock your phone. "))
 	if err := handleCommandDownload(ctx, conn, data); err != nil {
 		slog.Error("failed to download profile", "error", err)
 		return conn.Send(TagMessageBox, []byte("Download failed \n"+ToTitle(err.Error())))
@@ -70,7 +70,7 @@ ICCID: %s
 `
 			return conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.ICCID)))
 		}
-		return conn.Send(TagMessageBox, []byte(current))
+		return nil
 	})
 }
 
