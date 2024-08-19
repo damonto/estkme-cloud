@@ -20,6 +20,11 @@ fi
 # Install dependencies.
 apt-get update -y && apt-get install -y unzip cmake pkg-config libcurl4-openssl-dev zip curl
 
+# if estkme-cloud is already running stop it.
+if supervisorctl status estkme-cloud | grep -q RUNNING; then
+  supervisorctl stop estkme-cloud
+fi
+
 # Download the latest version of lpac and compile it.
 LPAC_VERSION=$(curl -Ls https://api.github.com/repos/estkme-group/lpac/releases/latest | grep tag_name | cut -d '"' -f 4)
 curl -L -o lpac-"$LPAC_VERSION".zip https://github.com/estkme-group/lpac/archive/refs/tags/"$LPAC_VERSION".zip
@@ -31,11 +36,6 @@ make -j$(nproc) -C build
 cp build/output/lpac "$DST_DIR"
 cd ..
 rm -rf lpac-*
-
-# if estkme-cloud is already running stop it.
-if supervisorctl status estkme-cloud | grep -q RUNNING; then
-  supervisorctl stop estkme-cloud
-fi
 
 # Download and Install estkme-cloud.
 ESTKME_CLOUD_VERSION=$(curl -Ls https://api.github.com/repos/damonto/estkme-cloud/releases/latest | grep tag_name | cut -d '"' -f 4)
