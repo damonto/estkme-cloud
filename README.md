@@ -1,5 +1,7 @@
 # eSTK.me Cloud Enhance Server
 
+> *This project is designed for ESTKme ECO/Lite series removable eUICC. It does not support the ESTKme 2025 series removable eUICC (DRO, MEGA, etc.) yet.*
+
 ### Introduction
 
 This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications.
