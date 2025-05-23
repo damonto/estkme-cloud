@@ -33,6 +33,7 @@ func (c *Cmd) Run(arguments []string, dst any, progress Progress) error {
 	cmd := exec.CommandContext(c.ctx, filepath.Join(config.C.Dir, "lpac"), arguments...)
 	cmd.Dir = config.C.Dir
 	cmd.Env = append(cmd.Env, "LPAC_APDU=stdio")
+	cmd.Env = append(cmd.Env, "LPAC_CUSTOM_ES10X_MSS=240")
 
 	stderr := bytes.Buffer{}
 	cmd.Stderr = &stderr
