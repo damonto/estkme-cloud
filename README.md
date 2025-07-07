@@ -4,7 +4,9 @@
 
 This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications.
 
-If you don't have an eSTK.me eUICC yet, you can get one from [eSTK.me](https://www.estk.me?aid=esim) and use the coupon code `eSIMCyou` to receive a 10% discount.
+If you don’t have an eUICC yet, you can purchase one from eSTK.me and use the coupon code `eSIMCyou` to get 10% off. We recommend eSTKme if you need to perform profile downloads on iOS devices.
+
+If you require more than 1MB of storage to install multiple eSIM profiles, we recommend 9eSIM. Use the coupon code `DAMON` to also receive 10% off.
 
 ### Community Server
 

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log/slog"
 	"net"
+	"slices"
 	"sync"
 
 	"github.com/damonto/estkme-cloud/internal/driver"
@@ -114,12 +115,7 @@ func (c *Conn) Read() (Tag, []byte, error) {
 }
 
 func (c *Conn) isKnownTag(tag Tag) bool {
-	for _, knownTag := range KnownTags {
-		if tag == knownTag {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(KnownTags, tag)
 }
 
 func (c *Conn) pack(tag Tag, data []byte) []byte {
