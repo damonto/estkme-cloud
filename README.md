@@ -173,13 +173,6 @@ You can get the `seq number` from the `/ln` command.
 
 If you click the "Process Notification" button on the eSTK.me eUICC, the server will receive a notification request and send all notifications.
 
-Please note that:
-
-1. All enable, disable and install notifications will be deleted after sending.
-
-2. The delete notifications will be kept in your eSTK.me eUICC.
-
-
 ### Donate
 
 If you like this project, you can donate to the following addresses:
