@@ -8,21 +8,12 @@ If you don’t have an eUICC yet, you can purchase one from [eSTK.me](https://ww
 
 If you require more than 1MB of storage to install multiple eSIM profiles, we recommend [9eSIM](https://www.9esim.com/?coupon=DAMON). Use the coupon code `DAMON` to also receive 10% off.
 
-### Community Server
-
-If you want to use our community server which provides faster download speed and more features, you can use the following server address:
-
-```plaintext
-cloud.esim.cyou
-```
-
-And, you can visit the [eSIM.cyou status](https://status.esim.cyou) to check the server status.
-
 ### Installation
 
 You can download the binary release from the [releases page](https://github.com/damonto/estkme-cloud/releases) or you can build it yourself.
 
 If you want to build it yourself, you can run the following commands:
+
 ```bash
 git clone git@github.com:damonto/estkme-cloud.git
 cd estkme-cloud
@@ -90,6 +81,7 @@ TimeoutStopSec=30s
 [Install]
 WantedBy=multi-user.target
 ```
+
 2. Then, use the following command to start the service:
 
 ```bash
@@ -133,11 +125,13 @@ Please replace `<confirmation_code>` with the actual confirmation code.
 If your eSIM provider requires a custom IMEI, you can use the following activation code format:
 
 1. With confirmation code:
+
 ```plaintext
 LPA:1$SM-DP+$Matching Id$$<confirmation_code>#<custom_imei>
 ```
 
 2. Without confirmation code:
+
 ```plaintext
 LPA:1$SM-DP+$Matching Id#<custom_imei>
 ```
@@ -149,14 +143,17 @@ Please replace `<custom_imei>` with the actual IMEI.
 ##### Consume Data
 
 You can also use the following command to consume your cellular data:
+
 ```plaintext
 /data <amount_of_data_in_KiB>
 ```
+
 Please replace `<amount_of_data_in_KiB>` with the actual data amount.
 
 ##### List Notifications
 
 You can use the following command to list the last 4 notifications:
+
 ```plaintext
 /ln <enable|disable|install|delete>
 ```
@@ -164,9 +161,11 @@ You can use the following command to list the last 4 notifications:
 ##### Process Notification
 
 You can use the following command to process notification:
+
 ```plaintext
 /process <seq number>
 ```
+
 You can get the `seq number` from the `/ln` command.
 
 #### Notification
