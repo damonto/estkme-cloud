@@ -1,5 +1,7 @@
 # eSTK.me Cloud Enhance Server
 
+Due to the end of life (EOL) of the ESTKme series cards (ECO, 400K) and the lack of any indication that the rLPA v2 protocol will be open-sourced, project maintenance has been suspended.
+
 ### Introduction
 
 This is a simple server designed to handle requests from the eSTK.me removable eUICC, such as downloads and notifications.
