@@ -5,3 +5,6 @@
 .vscode
 .idea
 *.swp
+
+# Node
+/node_modules
